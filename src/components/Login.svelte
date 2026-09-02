@@ -26,7 +26,8 @@
   }
 </script>
 
-<main class="grid min-h-dvh place-items-center px-6">
+<main class="grid min-h-dvh place-items-center px-6
+             pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
   <div class="w-full max-w-sm">
     <p class="eyebrow">90-day body recomp</p>
     <h1 class="mt-3 font-display text-5xl font-extrabold tracking-tight leading-[0.95]">

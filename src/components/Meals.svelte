@@ -23,7 +23,7 @@
   const best = $derived(shown.length ? Math.max(...shown.map(density)) : 0);
 </script>
 
-<header class="px-5 pb-2 pt-6">
+<header class="px-5 pb-2 pt-[calc(env(safe-area-inset-top)+1.5rem)]">
   <p class="eyebrow">Your kitchen</p>
   <h1 class="font-display text-3xl font-extrabold tracking-tight">Meals</h1>
   <p class="mt-2 text-sm leading-relaxed text-muted">
@@ -31,7 +31,8 @@
   </p>
 </header>
 
-<div class="sticky top-0 z-30 border-b border-line bg-ink/95 px-5 py-3 backdrop-blur">
+<div class="sticky top-0 z-30 border-b border-line bg-ink/95 px-5 pb-3 backdrop-blur
+            pt-[calc(env(safe-area-inset-top)+0.75rem)]">
   <div class="flex gap-2">
     {#each [['all', 'All'], ['regular', 'Fed days'], ['fasting', 'Fasting']] as [key, label]}
       <button onclick={() => (filter = key as any)}

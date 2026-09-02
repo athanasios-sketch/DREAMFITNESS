@@ -62,15 +62,28 @@
     ].sort((a, b) => (a[1] as number) - (b[1] as number));
   });
 
-  /** Weight: EWMA-smoothed, then least-squares slope over the last 21 points.
-   *  Daily scale readings are mostly water; never show a day-over-day delta. */
+  /** Weight: EWMA-smoothed, then a least-squares slope over a fixed WINDOW OF
+   *  DAYS rather than a fixed number of readings. Measurements are weekly now,
+   *  so counting samples would silently stretch the trend window from three
+   *  weeks to five months. Smoothing follows the same logic: weekly readings
+   *  need a heavier alpha or the trend lags reality by a month. */
   const weight = $derived.by(() => {
     const w = (p?.logs ?? []).filter((l: any) => l.weight_kg != null)
                 .map((l: any) => ({ d: l.log_date, kg: +l.weight_kg }));
     if (!w.length) return null;
+
+    const gaps = w.slice(1).map((r: any, i: number) =>
+      (Date.parse(r.d) - Date.parse(w[i].d)) / 86400000).sort((a, b) => a - b);
+    const medianGap = gaps.length ? gaps[Math.floor(gaps.length / 2)] : 7;
+    const weekly = medianGap > 3;
+    const alpha  = weekly ? 0.5 : 0.25;
+    const windowDays = weekly ? 56 : 21;
+
     let e = w[0].kg; const sm = [{ ...w[0], ewma: e }];
-    for (const r of w.slice(1)) { e = 0.25 * r.kg + 0.75 * e; sm.push({ ...r, ewma: e }); }
-    const tail = sm.slice(-21);
+    for (const r of w.slice(1)) { e = alpha * r.kg + (1 - alpha) * e; sm.push({ ...r, ewma: e }); }
+
+    const cutoff = Date.parse(sm.at(-1)!.d) - windowDays * 86400000;
+    const tail = sm.filter((r: any) => Date.parse(r.d) >= cutoff);
     let perWeek: number | null = null;
     if (tail.length >= 4) {
       const t0 = Date.parse(tail[0].d);
@@ -81,7 +94,8 @@
       const den = n * sxx - sx * sx;
       if (den !== 0) perWeek = ((n * sxy - sx * sy) / den) * 7;
     }
-    return { series: sm, latest: sm.at(-1)!, perWeek, start: +(p?.profile?.start_weight_kg ?? w[0].kg) };
+    return { series: sm, latest: sm.at(-1)!, perWeek, weekly,
+             start: +(p?.profile?.start_weight_kg ?? w[0].kg) };
   });
 
   /** Sparkline over the smoothed series. */
@@ -115,6 +129,17 @@
     return x.length ? mean(x) : null;
   });
 
+  /** Averaged over days you actually logged, not over the calendar - dividing
+   *  by days you never opened the app would just punish you twice. */
+  const habits = $derived.by(() => {
+    const logs = p?.logs ?? [];
+    const avg = (f: string) => {
+      const xs = logs.filter((l: any) => l[f] != null).map((l: any) => +l[f]);
+      return xs.length ? mean(xs) : null;
+    };
+    return { steps: avg('steps'), water: avg('water_l'), coffee: avg('coffee_cups') };
+  });
+
   const waist = $derived.by(() => {
     const xs = (p?.logs ?? []).filter((l: any) => l.waist_cm != null);
     return xs.length ? { first: +xs[0].waist_cm, last: +xs.at(-1).waist_cm } : null;
@@ -146,7 +171,8 @@
   const n0 = (n: any) => n == null ? '--' : Math.round(Number(n)).toLocaleString();
 </script>
 
-<header class="flex items-start justify-between px-5 pb-2 pt-6">
+<header class="flex items-start justify-between px-5 pb-2
+               pt-[calc(env(safe-area-inset-top)+1.5rem)]">
   <div>
     <p class="eyebrow">90-day body recomp</p>
     <h1 class="font-display text-3xl font-extrabold tracking-tight">DREAMFITNESS</h1>
@@ -279,7 +305,9 @@
           <p class="tnum mt-1 text-3xl font-bold">
             {weight ? f(weight.latest.ewma) : f(p.profile?.start_weight_kg)}<span class="text-base text-muted"> kg</span>
           </p>
-          <p class="mt-0.5 text-[11px] text-muted">{weight ? 'Smoothed trend' : 'Starting weight'}</p>
+          <p class="mt-0.5 text-[11px] text-muted">
+            {weight ? (weight.weekly ? 'Smoothed weekly trend' : 'Smoothed trend') : 'Starting weight'}
+          </p>
         </div>
         {#if spark}
           <svg viewBox="0 0 100 30" preserveAspectRatio="none" class="h-14 w-32" aria-hidden="true">
@@ -294,6 +322,23 @@
           At this rate, day 90 lands near <span class="text-bone">{f(projected)} kg</span>
         </p>
       {/if}
+    </section>
+
+    <!-- habits: logged every day, and only water is scored -->
+    <section class="panel p-5">
+      <p class="eyebrow">Daily habits</p>
+      <p class="mt-1 text-xs text-muted">Averaged across the days you logged.</p>
+      <div class="mt-4 grid grid-cols-3 gap-3">
+        {#each [['Steps', habits.steps == null ? '--' : n0(habits.steps), ''],
+                ['Water', habits.water == null ? '--' : f(habits.water, 1), 'L'],
+                ['Coffee', habits.coffee == null ? '--' : f(habits.coffee, 1), 'cups']] as [label, val, unit]}
+          <div>
+            <p class="eyebrow text-[9px]">{label}</p>
+            <p class="tnum mt-1 text-2xl font-bold {val === '--' ? 'text-muted/40' : ''}">{val}</p>
+            {#if unit}<p class="text-[11px] text-muted">{unit}</p>{/if}
+          </div>
+        {/each}
+      </div>
     </section>
 
     <!-- SIGNATURE: the whole program at once, Mon-Sun so fasting days stripe -->
