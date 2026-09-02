@@ -78,14 +78,46 @@
 
             {#if isOpen}
               <div class="space-y-4 border-t border-line px-4 py-4">
+                {#if m.equipment}
+                  <div class="flex flex-wrap gap-3 text-[11px] text-muted">
+                    <span class="rounded bg-raised px-2 py-1">{m.equipment}</span>
+                    {#if m.prep_min}<span class="tnum rounded bg-raised px-2 py-1">{m.prep_min} min prep</span>{/if}
+                    {#if m.cook_min}<span class="tnum rounded bg-raised px-2 py-1">{m.cook_min} min cook</span>{/if}
+                  </div>
+                {/if}
+
                 <div>
                   <p class="eyebrow">In it</p>
                   <p class="mt-1.5 text-sm leading-relaxed">{m.ingredients}</p>
                 </div>
+
                 <div>
-                  <p class="eyebrow">How</p>
-                  <p class="mt-1.5 text-sm leading-relaxed text-muted">{m.instructions}</p>
+                  <p class="eyebrow">Method</p>
+                  {#if m.steps?.length}
+                    <ol class="mt-2 space-y-2.5">
+                      {#each m.steps as step, i}
+                        <li class="flex gap-3 text-sm leading-relaxed">
+                          <span class="tnum mt-0.5 shrink-0 text-xs text-fast">{i + 1}</span>
+                          <span>{step}</span>
+                        </li>
+                      {/each}
+                    </ol>
+                  {:else}
+                    <p class="mt-1.5 text-sm leading-relaxed text-muted">{m.instructions}</p>
+                  {/if}
                 </div>
+
+                {#if m.tips?.length}
+                  <div class="rounded-lg border-l-2 border-fed bg-fed/5 py-3 pl-3 pr-3">
+                    <p class="eyebrow text-fed">Worth knowing</p>
+                    <ul class="mt-2 space-y-2">
+                      {#each m.tips as tip}
+                        <li class="text-sm leading-relaxed text-bone/80">{tip}</li>
+                      {/each}
+                    </ul>
+                  </div>
+                {/if}
+
                 <div class="flex gap-4 border-t border-line pt-3">
                   <span class="tnum text-xs text-muted">
                     {d.toFixed(1)}<span class="text-[10px]"> g protein / 100 kcal</span>
