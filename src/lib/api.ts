@@ -13,6 +13,14 @@ export const shiftDate = (iso: string, days: number): string => {
   return dt.toISOString().slice(0, 10);
 };
 
+let _library: any[] | null = null;
+async function mealLibrary() {
+  if (_library) return _library;
+  const { data } = await supabase.from('meals').select('*').order('slot');
+  _library = data ?? [];
+  return _library;
+}
+
 export type Slot = { slot_index: number; meal: any; planned: any; log: any; swapped: boolean };
 
 /** Everything the Today screen needs, in one round trip per table. */
@@ -39,8 +47,8 @@ export async function loadDay(date: string) {
   const { data: score } = await supabase
     .from('daily_scores').select('*').eq('score_date', date).maybeSingle();
 
-  // the whole library is 19 rows; fetch once so swaps resolve without a round trip
-  const { data: library } = await supabase.from('meals').select('*').order('slot');
+  // The library is static reference data - fetch it once per session, not per day view.
+  const library = await mealLibrary();
 
   // copy before sorting: this array ends up inside $state and must not be mutated in place
   const planned = [...(pd?.planned ?? [])].sort((x: any, y: any) => x.slot_index - y.slot_index);
@@ -146,9 +154,6 @@ export async function loadProgram() {
 /** The meal library. Superseded v1 fasting meals are kept in the DB for
  *  comparison but are not something you'd cook from, so they're excluded. */
 export async function loadMeals() {
-  const { data } = await supabase
-    .from('meals')
-    .select('*')
-    .order('slot').order('day_type').order('code');
-  return (data ?? []).filter((m: any) => !(m.day_type === 'fasting' && m.version === 1));
+  const data = await mealLibrary();
+  return data.filter((m: any) => !(m.day_type === 'fasting' && m.version === 1));
 }

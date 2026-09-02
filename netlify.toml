@@ -1,0 +1,29 @@
+[build]
+  command = "npm run build"
+  publish  = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Astro fingerprints everything in _astro/, so it can be cached forever.
+[[headers]]
+  for = "/_astro/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options         = "DENY"
+    X-Content-Type-Options  = "nosniff"
+    Referrer-Policy         = "strict-origin-when-cross-origin"
+    Permissions-Policy      = "geolocation=(), camera=(), microphone=(), interest-cohort=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+    # Supabase is the only external origin the app talks to; fonts are Google's.
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://fgawdheudbuqxfwregtf.supabase.co wss://fgawdheudbuqxfwregtf.supabase.co; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+
+# The login route holds the credential and must never be cached anywhere.
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Cache-Control = "no-store"

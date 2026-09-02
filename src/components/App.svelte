@@ -8,6 +8,7 @@
 
   let session = $state<any>(null);
   let ready   = $state(false);
+  let online  = $state(true);
   let tab     = $state<'dashboard' | 'today' | 'meals'>('dashboard');
 
   onMount(async () => {
@@ -15,10 +16,28 @@
     session = data.session;
     ready = true;
     supabase.auth.onAuthStateChange((_e, s) => (session = s));
+
+    online = navigator.onLine;
+    addEventListener('online',  () => (online = true));
+    addEventListener('offline', () => (online = false));
+
+    // Deliberately NOT on localhost: a dev-scoped worker outlives the project
+    // and starts intercepting whatever runs on that port next.
+    if (import.meta.env.PROD && location.hostname !== 'localhost'
+        && location.hostname !== '127.0.0.1' && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
   });
 
   const signOut = async () => { await supabase.auth.signOut(); session = null; };
 </script>
+
+{#if !online}
+  <div role="status"
+       class="fixed inset-x-0 top-0 z-50 bg-fed px-4 py-1.5 text-center text-xs font-semibold text-ink">
+    Offline &mdash; your plan is readable, but changes won't save until you reconnect
+  </div>
+{/if}
 
 {#if !ready}
   <div class="grid min-h-dvh place-items-center">
