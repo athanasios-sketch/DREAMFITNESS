@@ -185,32 +185,6 @@
       </button>
     {/if}
 
-    <!-- SIGNATURE: the whole program at once, Mon-Sun so fasting days stripe -->
-    <section class="panel p-5">
-      <div class="flex items-baseline justify-between">
-        <p class="eyebrow">Day {elapsed.length} of 90</p>
-        <p class="tnum text-xs text-muted">{remaining} to go</p>
-      </div>
-
-      <div class="mt-4 grid grid-cols-7 gap-1.5" role="img"
-           aria-label="{scored.length} of {elapsed.length} elapsed days logged">
-        {#each Array(lead) as _}<div></div>{/each}
-        {#each p.days as d}
-          <div title="Day {d.day_no} · {d.day_date} · {d.day_type} · {d.exercise?.code ?? ''}"
-               class="aspect-square rounded-[3px] {cell(d)}
-                      {d.day_date === today ? 'ring-2 ring-bone ring-offset-2 ring-offset-panel' : ''}"></div>
-        {/each}
-      </div>
-
-      <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] text-muted">
-        <span class="flex items-center gap-1.5"><i class="size-2.5 rounded-[2px] bg-peak"></i>Strong</span>
-        <span class="flex items-center gap-1.5"><i class="size-2.5 rounded-[2px] bg-fed/70"></i>Partial</span>
-        <span class="flex items-center gap-1.5"><i class="size-2.5 rounded-[2px] bg-warn/70"></i>Missed</span>
-        <span class="flex items-center gap-1.5"><i class="size-2.5 rounded-[2px] bg-fast/25"></i>Fasting ahead</span>
-        <span class="flex items-center gap-1.5"><i class="size-2.5 rounded-[2px] bg-fed/25"></i>Fed ahead</span>
-      </div>
-    </section>
-
     {#if !scored.length}
       <!-- day one: say what to do, not "--" -->
       <section class="panel border-fast/30 p-5">
@@ -322,8 +296,34 @@
       {/if}
     </section>
 
+    <!-- SIGNATURE: the whole program at once, Mon-Sun so fasting days stripe -->
+    <section class="panel p-5">
+      <div class="flex items-baseline justify-between">
+        <p class="eyebrow">Day {elapsed.length} of 90</p>
+        <p class="tnum text-xs text-muted">{remaining} to go</p>
+      </div>
+
+      <div class="mt-4 grid grid-cols-7 gap-1.5" role="img"
+           aria-label="{scored.length} of {elapsed.length} elapsed days logged">
+        {#each Array(lead) as _}<div></div>{/each}
+        {#each p.days as d}
+          <div title="Day {d.day_no} · {d.day_date} · {d.day_type} · {d.exercise?.code ?? ''}"
+               class="aspect-square rounded-[3px] {cell(d)}
+                      {d.day_date === today ? 'ring-2 ring-bone ring-offset-2 ring-offset-panel' : ''}"></div>
+        {/each}
+      </div>
+
+      <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] text-muted">
+        <span class="flex items-center gap-1.5"><i class="size-2.5 rounded-[2px] bg-peak"></i>Strong</span>
+        <span class="flex items-center gap-1.5"><i class="size-2.5 rounded-[2px] bg-fed/70"></i>Partial</span>
+        <span class="flex items-center gap-1.5"><i class="size-2.5 rounded-[2px] bg-warn/70"></i>Missed</span>
+        <span class="flex items-center gap-1.5"><i class="size-2.5 rounded-[2px] bg-fast/25"></i>Fasting ahead</span>
+        <span class="flex items-center gap-1.5"><i class="size-2.5 rounded-[2px] bg-fed/25"></i>Fed ahead</span>
+      </div>
+    </section>
+
     <!-- energy -->
-    <section class="panel p-5 mb-4">
+    <section class="panel mb-4 p-5">
       <p class="eyebrow">Adaptive TDEE</p>
       {#if tdee}
         <p class="tnum mt-1 text-4xl font-bold text-fed">{n0(tdee)}</p>

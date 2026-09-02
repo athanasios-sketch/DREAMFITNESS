@@ -13,7 +13,7 @@ export const shiftDate = (iso: string, days: number): string => {
   return dt.toISOString().slice(0, 10);
 };
 
-export type Slot = { slot_index: number; meal: any; log: any };
+export type Slot = { slot_index: number; meal: any; planned: any; log: any; swapped: boolean };
 
 /** Everything the Today screen needs, in one round trip per table. */
 export async function loadDay(date: string) {
@@ -39,15 +39,22 @@ export async function loadDay(date: string) {
   const { data: score } = await supabase
     .from('daily_scores').select('*').eq('score_date', date).maybeSingle();
 
+  // the whole library is 19 rows; fetch once so swaps resolve without a round trip
+  const { data: library } = await supabase.from('meals').select('*').order('slot');
+
   // copy before sorting: this array ends up inside $state and must not be mutated in place
   const planned = [...(pd?.planned ?? [])].sort((x: any, y: any) => x.slot_index - y.slot_index);
-  const slots: Slot[] = planned.map((p: any) => ({
-    slot_index: p.slot_index,
-    meal: p.meal,
-    log: mealLogs.find((m) => m.slot_index === p.slot_index) ?? null,
-  }));
+  const meals = library ?? [];
 
-  return { programDay: pd, log, slots, planned, sets, extras, score };
+  // `meal` is what you ACTUALLY ate; `planned` is what the program asked for.
+  const slots: Slot[] = planned.map((p: any) => {
+    const log = mealLogs.find((m) => m.slot_index === p.slot_index) ?? null;
+    const actual = (log?.meal_id && meals.find((m: any) => m.id === log.meal_id)) || p.meal;
+    return { slot_index: p.slot_index, meal: actual, planned: p.meal, log,
+             swapped: actual.id !== p.meal.id };
+  });
+
+  return { programDay: pd, log, slots, planned, sets, extras, score, meals };
 }
 
 async function uid() {
@@ -66,16 +73,32 @@ export async function ensureDayLog(date: string) {
   return data;
 }
 
-export async function toggleMeal(date: string, slot: any, completed: boolean) {
+/** One writer for the slot, so completing / swapping / re-portioning never
+ *  clobber each other's fields. */
+async function writeSlot(date: string, slot: any, patch: Record<string, any>) {
   const log = await ensureDayLog(date);
-  const payload = {
+  const mealId = patch.meal_id ?? slot.meal.id;
+  const { error } = await supabase.from('meal_logs').upsert({
     user_id: log.user_id, day_log_id: log.id, slot_index: slot.slot_index,
-    program_day_meal_id: null, meal_id: slot.meal.id, completed, portion: slot.log?.portion ?? 1,
-  };
-  const { error } = await supabase
-    .from('meal_logs').upsert(payload, { onConflict: 'day_log_id,slot_index' });
+    program_day_meal_id: null,
+    meal_id: mealId,
+    completed: patch.completed ?? slot.log?.completed ?? false,
+    portion:   patch.portion   ?? slot.log?.portion   ?? 1,
+    swapped:   mealId !== slot.planned.id,
+  }, { onConflict: 'day_log_id,slot_index' });
   if (error) throw error;
 }
+
+export const toggleMeal = (date: string, slot: any, completed: boolean) =>
+  writeSlot(date, slot, { completed });
+
+/** Ate something else in this slot - a second dinner instead of lunch, say. */
+export const swapMeal = (date: string, slot: any, mealId: number) =>
+  writeSlot(date, slot, { meal_id: mealId });
+
+/** 2 = ate it twice. Macros scale by this. */
+export const setPortion = (date: string, slot: any, portion: number) =>
+  writeSlot(date, slot, { portion });
 
 export async function saveMetrics(date: string, fields: Record<string, any>) {
   const log = await ensureDayLog(date);

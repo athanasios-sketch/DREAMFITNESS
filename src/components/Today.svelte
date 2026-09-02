@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { athensToday, shiftDate, loadDay, toggleMeal, saveMetrics,
-           addSet, addExtra, deleteRow } from '../lib/api';
+  import { athensToday, shiftDate, loadDay, toggleMeal, swapMeal, setPortion,
+           saveMetrics, addSet, addExtra, deleteRow } from '../lib/api';
 
   const TODAY = athensToday();
   let date = $state(TODAY);
@@ -10,6 +10,7 @@
   let err  = $state('');
   let openMovement = $state<string | null>(null);
   let openMeal     = $state<number | null>(null);
+  let swapFor      = $state<number | null>(null);
 
   const load = async () => {
     err = '';
@@ -41,6 +42,25 @@
     if (busy) return; busy = true;
     try { await toggleMeal(date, slot, !slot.log?.completed); await load(); }
     finally { busy = false; }
+  }
+
+  async function doSwap(slot: any, mealId: number) {
+    if (busy) return; busy = true;
+    try { await swapMeal(date, slot, mealId); swapFor = null; await load(); }
+    finally { busy = false; }
+  }
+
+  async function doPortion(slot: any, portion: number) {
+    if (busy) return; busy = true;
+    try { await setPortion(date, slot, portion); await load(); }
+    finally { busy = false; }
+  }
+
+  /** Swap candidates: same course first, then the rest of the library. */
+  function options(slot: any) {
+    const all = d.meals ?? [];
+    const rank = (m: any) => (m.slot === slot.planned.slot ? 0 : 1);
+    return [...all].sort((a, b) => rank(a) - rank(b) || a.slot.localeCompare(b.slot));
   }
 
   let timers: Record<string, any> = {};
@@ -79,6 +99,8 @@
 
   const pct = (a: number, b: number) => Math.min(100, b ? (a / b) * 100 : 0);
   const n0 = (v: any) => Math.round(Number(v ?? 0)).toLocaleString();
+  // 0.25 must read as 0.25, not 0.3 - the column now stores two decimals
+  const L  = (v: any) => parseFloat(Number(v ?? 0).toFixed(2)).toString();
 </script>
 
 <header class="sticky top-0 z-30 border-b border-line bg-ink/90 px-5 py-4 backdrop-blur">
@@ -197,28 +219,98 @@
         {#each d.slots as s}
           {@const done = !!s.log?.completed}
           {@const shown = openMeal === s.slot_index}
+          {@const q = Number(s.log?.portion ?? 1)}
           <div class="panel overflow-hidden {done ? 'border-peak/40 bg-peak/5' : ''}">
             <div class="flex items-center gap-3 p-4">
               <button onclick={() => flip(s)} aria-label="Mark {s.meal.name} eaten"
-                class="grid size-6 shrink-0 place-items-center rounded-md border-2 text-ink
+                class="grid size-7 shrink-0 place-items-center rounded-md border-2 text-ink
                        {done ? 'border-peak bg-peak' : 'border-line'}">
-                {#if done}<span class="text-xs font-bold">&check;</span>{/if}
+                {#if done}<span class="text-sm font-bold">&check;</span>{/if}
               </button>
               <button onclick={() => (openMeal = shown ? null : s.slot_index)}
                 class="min-w-0 flex-1 text-left">
-                <span class="block truncate font-semibold">{s.meal.name}</span>
-                <span class="tnum block text-xs text-muted">
-                  {+s.meal.protein_g}P &middot; {+s.meal.carbs_g}C &middot; {+s.meal.fat_g}F &middot; {s.meal.kcal} kcal
+                <span class="flex items-center gap-1.5">
+                  <span class="truncate font-semibold">{s.meal.name}</span>
+                  {#if q !== 1}<span class="tnum shrink-0 rounded bg-fed/15 px-1.5 text-[10px] text-fed">&times;{q}</span>{/if}
                 </span>
+                <span class="tnum block text-xs text-muted">
+                  {Math.round(+s.meal.protein_g * q)}P &middot; {Math.round(+s.meal.carbs_g * q)}C
+                  &middot; {Math.round(+s.meal.fat_g * q)}F &middot; {Math.round(+s.meal.kcal * q)} kcal
+                </span>
+                {#if s.swapped}
+                  <span class="mt-0.5 block truncate text-[11px] text-fast">
+                    swapped from {s.planned.name}
+                  </span>
+                {/if}
               </button>
               <span class="shrink-0 text-muted">{shown ? '−' : '+'}</span>
             </div>
+
             {#if shown}
-              <div class="space-y-3 border-t border-line px-4 py-4">
+              <div class="space-y-4 border-t border-line px-4 py-4">
+                <div>
+                  <p class="eyebrow">How much</p>
+                  <div class="mt-1.5 flex gap-1.5">
+                    {#each [0.5, 1, 1.5, 2] as v}
+                      <button onclick={() => doPortion(s, v)}
+                        class="tnum h-9 flex-1 rounded-md border text-xs transition
+                          {q === v ? 'border-fed bg-fed/15 text-fed' : 'border-line text-muted'}"
+                        >&times;{v}</button>
+                    {/each}
+                  </div>
+                </div>
+
+                <div>
+                  <div class="flex items-center justify-between">
+                    <p class="eyebrow">Ate something else?</p>
+                    <button onclick={() => (swapFor = swapFor === s.slot_index ? null : s.slot_index)}
+                      class="text-sm text-fast">{swapFor === s.slot_index ? 'Close' : 'Swap'}</button>
+                  </div>
+                  {#if swapFor === s.slot_index}
+                    <div class="mt-2 max-h-64 space-y-1 overflow-y-auto rounded-lg border border-line p-1.5">
+                      {#each options(s) as o}
+                        <button onclick={() => doSwap(s, o.id)}
+                          class="flex w-full items-center justify-between gap-2 rounded-md px-2.5 py-2
+                                 text-left text-sm transition
+                                 {o.id === s.meal.id ? 'bg-fast/15 text-fast' : 'hover:bg-raised'}">
+                          <span class="min-w-0">
+                            <span class="block truncate">{o.name}</span>
+                            <span class="text-[10px] uppercase tracking-wider text-muted">{o.slot}</span>
+                          </span>
+                          <span class="tnum shrink-0 text-xs text-muted">
+                            {+o.protein_g}P &middot; {o.kcal}
+                          </span>
+                        </button>
+                      {/each}
+                    </div>
+                  {/if}
+                </div>
+
                 <div><p class="eyebrow">In it</p>
                      <p class="mt-1 text-sm leading-relaxed">{s.meal.ingredients}</p></div>
-                <div><p class="eyebrow">How</p>
-                     <p class="mt-1 text-sm leading-relaxed text-muted">{s.meal.instructions}</p></div>
+                {#if s.meal.steps?.length}
+                  <div>
+                    <p class="eyebrow">Method</p>
+                    <ol class="mt-2 space-y-2">
+                      {#each s.meal.steps as step, i}
+                        <li class="flex gap-2.5 text-sm leading-relaxed">
+                          <span class="tnum mt-0.5 shrink-0 text-xs text-fast">{i + 1}</span>
+                          <span>{step}</span>
+                        </li>
+                      {/each}
+                    </ol>
+                  </div>
+                {/if}
+                {#if s.meal.tips?.length}
+                  <div class="rounded-lg border-l-2 border-fed bg-fed/5 p-3">
+                    <p class="eyebrow text-fed">Worth knowing</p>
+                    <ul class="mt-1.5 space-y-1.5">
+                      {#each s.meal.tips as tip}
+                        <li class="text-sm leading-relaxed text-bone/80">{tip}</li>
+                      {/each}
+                    </ul>
+                  </div>
+                {/if}
               </div>
             {/if}
           </div>
@@ -323,8 +415,8 @@
       <div class="mt-5 flex items-end justify-between">
         <div>
           <p class="eyebrow">Water</p>
-          <p class="tnum mt-1 text-xl">{Number(d.log?.water_l ?? 0).toFixed(1)}
-            <span class="text-sm text-muted">/ {pd.water_target_l} L</span></p>
+          <p class="tnum mt-1 text-xl">{L(d.log?.water_l)}
+            <span class="text-sm text-muted">/ {L(pd.water_target_l)} L</span></p>
         </div>
         <div class="flex gap-2">
           <button onclick={() => bump('water_l', -0.25)} aria-label="Remove 250ml"
