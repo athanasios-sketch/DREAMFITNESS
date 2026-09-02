@@ -386,6 +386,12 @@
                     <span class="eyebrow">Energy</span>
                     <span class="tnum text-sm text-fed">~{kcalFor(e)} kcal</span>
                   </div>
+                  {#if e.movements.some((m: any) => m.tracking === 'time')}
+                    <p class="mt-1 text-[11px] leading-relaxed text-muted">
+                      Lifting only. The timed blocks in this session are costed from the pace
+                      you log and added on top.
+                    </p>
+                  {/if}
                   <div class="mt-3 grid grid-cols-2 gap-3">
                     {#each [['duration_min', 'Planned minutes'],
                             ['work_met', 'Effort during a set (MET)'],
@@ -463,7 +469,15 @@
                                          (ev.currentTarget as HTMLInputElement).value)}
                               class="tnum w-12 rounded-md border border-line bg-ink px-2 py-1.5 text-sm" />
                           </label>
-                          {#if mv.tracking !== 'time'}
+                          {#if mv.tracking === 'time'}
+                            <label class="flex items-center gap-1.5">
+                              <span class="eyebrow text-[9px]">met</span>
+                              <input value={mv.met ?? ''} inputmode="decimal" placeholder="6"
+                                oninput={(ev) => patchMv(e.id, mv, 'met',
+                                           (ev.currentTarget as HTMLInputElement).value)}
+                                class="tnum w-14 rounded-md border border-line bg-ink px-2 py-1.5 text-sm" />
+                            </label>
+                          {:else}
                             <label class="flex items-center gap-1.5">
                               <span class="eyebrow text-[9px]">reps</span>
                               <input value={mv.rep_low ?? ''} inputmode="numeric"
@@ -486,6 +500,14 @@
                             {/each}
                           </span>
                         </div>
+                        {#if mv.tracking === 'time'}
+                          <p class="mt-1.5 text-[11px] leading-relaxed text-muted">
+                            Runs continuously, so it is costed on its own rather than at the
+                            session's rest-heavy pace. Log distance with the minutes and the
+                            intensity comes from your actual speed and incline &mdash; this MET
+                            is only the fallback when distance is missing.
+                          </p>
+                        {/if}
                       </div>
                     {/each}
                     {#if !e.movements.length}

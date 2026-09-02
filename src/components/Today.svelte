@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { athensToday, shiftDate, loadDay, toggleMeal, swapMeal, setPortion,
            saveMetrics, addSet, addExtra, deleteRow, isoWeekday, WEEKDAYS,
-           sessionKcal } from '../lib/api';
+           sessionKcal, walkRunMet } from '../lib/api';
 
   const TODAY = athensToday();
   let date = $state(TODAY);
@@ -63,25 +63,55 @@
     return set + rest > 0 ? set / (set + rest) : 1;
   };
 
-  /** What the session is worth at the minutes currently logged. Mirrors
-   *  public.session_kcal so the number moves as you type. */
-  const trainKcal = $derived.by(() => {
+  const bodyKg = $derived(
+    Number(d?.score?.detail?.bodyweight_kg ?? d?.profile?.start_weight_kg ?? 88));
+
+  /** Timed movements - the treadmill, a plank, a farmer hold - run continuously.
+   *  Costing them at the session's rest-heavy duty cycle would understate them
+   *  badly, so they are priced on their own, from the sets you logged. */
+  const timedMovements = $derived(
+    (d?.programDay?.exercise?.movements ?? []).filter((m: any) => m.tracking === 'time'));
+
+  const cardio = $derived.by(() => {
+    if (!d) return { min: 0, kcal: 0 };
+    let min = 0, kcal = 0;
+    for (const s of d.sets) {
+      if (!s.duration_sec) continue;
+      const mv = timedMovements.find((m: any) => m.id === s.movement_id
+                                              || m.name === s.movement_name);
+      if (!mv) continue;
+      const m = s.duration_sec / 60;
+      // pace beats any stored constant: derive it whenever distance was logged
+      const met = s.distance_km > 0
+        ? walkRunMet(+s.distance_km / (s.duration_sec / 3600), +s.incline_pct || 0)
+        : +(mv.met ?? 6);
+      min += m;
+      kcal += sessionKcal({ minutes: m, weightKg: bodyKg,
+        workMet: met, recoveryMet: met, dutyPct: 1,
+        setSeconds: 45, restSeconds: 0, epoc: 1 });
+    }
+    return { min, kcal: Math.round(kcal) };
+  });
+
+  /** The lifting half: minutes you entered, at the session's own duty cycle.
+   *  Mirrors public.session_kcal so the number moves as you type. */
+  const liftKcal = $derived.by(() => {
     const ex = d?.programDay?.exercise;
-    if (!ex) return 0;
-    const mins = Number(d.log?.training_minutes ?? 0);
-    if (!mins) return 0;
+    const mins = Number(d?.log?.training_minutes ?? 0);
+    if (!ex || !mins) return 0;
     if (ex.kcal_override != null) {
       return ex.duration_min > 0
-        ? Math.round(+ex.kcal_override * (mins / ex.duration_min)) : +ex.kcal_override;
+        ? Math.round(+ex.kcal_override * (mins / ex.duration_min)) : Math.round(+ex.kcal_override);
     }
     return Math.round(sessionKcal({
-      minutes: mins,
-      weightKg: Number(d.score?.detail?.bodyweight_kg ?? d.profile?.start_weight_kg ?? 88),
+      minutes: mins, weightKg: bodyKg,
       workMet: +ex.work_met, recoveryMet: +ex.recovery_met, dutyPct: ex.duty_pct,
       setSeconds: +(d.profile?.set_seconds ?? 45),
       restSeconds: +(d.profile?.rest_seconds ?? 120), epoc: +ex.epoc_factor,
     }));
   });
+
+  const trainKcal = $derived(liftKcal + cardio.kcal);
 
   async function flip(slot: any) {
     if (busy) return; busy = true;
@@ -147,8 +177,11 @@
   /** How a logged set reads back, in the units it was entered in. */
   function setLabel(s: any) {
     if (s.duration_sec) {
-      const m = Math.round(s.duration_sec / 60);
-      return s.distance_km ? `${m}min · ${+s.distance_km}km` : `${m}min`;
+      const m = +(s.duration_sec / 60).toFixed(1);
+      if (!s.distance_km) return `${m}min`;
+      const kmh = +s.distance_km / (s.duration_sec / 3600);
+      return `${m}min · ${+s.distance_km}km · ${kmh.toFixed(1)}km/h`
+           + (+s.incline_pct > 0 ? ` @${+s.incline_pct}%` : '');
     }
     return +s.weight_kg > 0 ? `${s.reps}×${+s.weight_kg}kg` : `${s.reps} reps`;
   }
@@ -420,7 +453,15 @@
         {/if}
 
         <label class="mt-3 block">
-          <span class="eyebrow">Minutes trained</span>
+          <span class="eyebrow">{timedMovements.length ? 'Minutes lifting' : 'Minutes trained'}</span>
+          {#if timedMovements.length}
+            <span class="mt-1 block text-[11px] leading-relaxed text-muted">
+              Lifting only. Log the {timedMovements.map((m: any) => m.name.replace(' - Zone 2','')).join(' and ')}
+              below as {timedMovements.length > 1 ? 'their own timed sets' : 'its own timed set'} &mdash;
+              {timedMovements.length > 1 ? 'they run' : 'it runs'} continuously, so
+              {timedMovements.length > 1 ? 'they are' : 'it is'} costed separately.
+            </span>
+          {/if}
           <div class="mt-1.5 flex gap-2">
             <input value={d.log?.training_minutes ?? ''} inputmode="numeric"
               placeholder={String(pd.exercise.duration_min || 45)}
@@ -438,8 +479,15 @@
 
         {#if trainKcal > 0}
           <p class="tnum mt-2 text-xs text-muted">
-            &asymp; <span class="text-fed">{n0(trainKcal)} kcal</span> at
-            {Math.round((duty(pd.exercise)) * 100)}% time under load
+            &asymp; <span class="text-fed">{n0(trainKcal)} kcal</span>
+            {#if cardio.kcal > 0 && liftKcal > 0}
+              &mdash; {n0(liftKcal)} lifting at {Math.round(duty(pd.exercise) * 100)}% under load,
+              {n0(cardio.kcal)} from {L(cardio.min)} min continuous
+            {:else if cardio.kcal > 0}
+              from {L(cardio.min)} min continuous
+            {:else}
+              at {Math.round(duty(pd.exercise) * 100)}% time under load
+            {/if}
           </p>
         {/if}
 

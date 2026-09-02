@@ -37,6 +37,20 @@ export const isoWeekday = (iso: string): number => {
 
 export const WEEKDAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 
+/** ACSM metabolic equations, mirrored from public.walk_run_met. Pace is most of
+ *  the answer on a treadmill, and incline moves it more than pace does:
+ *  6 km/h flat is 3.9 METs, the same 6 km/h at 5% is 6.4. */
+export function walkRunMet(kmh: number, inclinePct = 0): number {
+  if (!Number.isFinite(+kmh) || +kmh <= 0) return 1;
+  const S = +kmh * 1000 / 60;                       // metres per minute
+  const G = (Number.isFinite(+inclinePct) ? +inclinePct : 0) / 100;
+  // the walking equation is validated to ~6.4 km/h; extended to 7.5 because a
+  // fast walk is still a walk, and the running equation overstates it badly
+  const vo2 = +kmh < 7.5 ? 0.1 * S + 1.8 * S * G + 3.5
+                         : 0.2 * S + 0.9 * S * G + 3.5;
+  return Math.max(1, vo2 / 3.5);
+}
+
 /** The energy model, mirrored from public.session_kcal so the editor can show a
  *  live number without a round trip. Both sides must agree - if you change one,
  *  change the other. */
