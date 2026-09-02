@@ -4,10 +4,11 @@
   import Login from './Login.svelte';
   import Today from './Today.svelte';
   import Dashboard from './Dashboard.svelte';
+  import Meals from './Meals.svelte';
 
   let session = $state<any>(null);
   let ready   = $state(false);
-  let tab     = $state<'dashboard' | 'today'>('dashboard');
+  let tab     = $state<'dashboard' | 'today' | 'meals'>('dashboard');
 
   onMount(async () => {
     const { data } = await supabase.auth.getSession();
@@ -29,15 +30,17 @@
   <div class="mx-auto max-w-lg pb-28">
     {#if tab === 'dashboard'}
       <Dashboard {signOut} onOpenToday={() => (tab = 'today')} />
-    {:else}
+    {:else if tab === 'today'}
       <Today />
+    {:else}
+      <Meals />
     {/if}
   </div>
 
   <nav class="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-panel/95 backdrop-blur
               pb-[env(safe-area-inset-bottom)]">
     <div class="mx-auto flex max-w-lg">
-      {#each [['dashboard', 'Overview'], ['today', 'Today']] as [key, label]}
+      {#each [['dashboard', 'Overview'], ['today', 'Today'], ['meals', 'Meals']] as [key, label]}
         <button
           onclick={() => (tab = key as any)}
           class="flex-1 py-4 text-sm font-medium transition-colors

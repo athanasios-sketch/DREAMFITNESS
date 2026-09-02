@@ -39,7 +39,8 @@ export async function loadDay(date: string) {
   const { data: score } = await supabase
     .from('daily_scores').select('*').eq('score_date', date).maybeSingle();
 
-  const planned = (pd?.planned ?? []).sort((x: any, y: any) => x.slot_index - y.slot_index);
+  // copy before sorting: this array ends up inside $state and must not be mutated in place
+  const planned = [...(pd?.planned ?? [])].sort((x: any, y: any) => x.slot_index - y.slot_index);
   const slots: Slot[] = planned.map((p: any) => ({
     slot_index: p.slot_index,
     meal: p.meal,
@@ -117,4 +118,14 @@ export async function loadProgram() {
     supabase.from('profiles').select('*').maybeSingle(),
   ]);
   return { days: days ?? [], scores: scores ?? [], logs: logs ?? [], profile };
+}
+
+/** The meal library. Superseded v1 fasting meals are kept in the DB for
+ *  comparison but are not something you'd cook from, so they're excluded. */
+export async function loadMeals() {
+  const { data } = await supabase
+    .from('meals')
+    .select('*')
+    .order('slot').order('day_type').order('code');
+  return (data ?? []).filter((m: any) => !(m.day_type === 'fasting' && m.version === 1));
 }
