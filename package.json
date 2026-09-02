@@ -3,9 +3,9 @@
   "type": "module",
   "version": "1.0.0",
   "scripts": {
-    "dev": "astro dev",
+    "dev": "astro dev --port 4400",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview --port 4400"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.47.10"
