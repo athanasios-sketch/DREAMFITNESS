@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+/* ── DREAMFITNESS design tokens ────────────────────────────────────────────
+   The palette encodes the program's actual rhythm: every day is either
+   FASTING (cool) or FED (warm). Colour is structure here, not decoration. */
+@theme {
+  --color-ink:     #10131A;
+  --color-panel:   #171C26;
+  --color-raised:  #1E2431;
+  --color-line:    #2A3242;
+  --color-bone:    #EAE6DC;
+  --color-muted:   #8894A8;
+  --color-fast:    #62B6CB;
+  --color-fed:     #F2A65A;
+  --color-peak:    #C3E88D;
+  --color-warn:    #E5786B;
+
+  --font-display: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --font-body:    "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-data:    "JetBrains Mono", ui-monospace, monospace;
+}
+
+:root { color-scheme: dark; }
+
+html, body {
+  background: var(--color-ink);
+  color: var(--color-bone);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
+}
+
+/* tabular figures everywhere numbers are compared vertically */
+.tnum { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+
+.eyebrow {
+  font-family: var(--font-data);
+  font-size: 0.6875rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.panel {
+  background: var(--color-panel);
+  border: 1px solid var(--color-line);
+  border-radius: 14px;
+}
+
+/* keyboard focus stays visible - quality floor, not decoration */
+:focus-visible { outline: 2px solid var(--color-fast); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+/* iOS: stop the zoom-on-focus jump */
+input, select, textarea { font-size: 16px; }
