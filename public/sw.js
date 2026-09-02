@@ -1,6 +1,6 @@
 // Bump CACHE when the shell changes; old caches are dropped on activate.
-const CACHE = 'dreamfitness-v1';
-const SHELL = ['/', '/icon.svg', '/manifest.webmanifest'];
+const CACHE = 'dreamfitness-v2';
+const SHELL = ['/', '/apple-touch-icon.png', '/manifest.webmanifest'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
