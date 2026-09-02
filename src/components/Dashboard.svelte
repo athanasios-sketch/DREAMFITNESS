@@ -167,6 +167,15 @@
     return (new Date(p.days[0].day_date + 'T12:00:00').getDay() + 6) % 7;
   });
 
+  /** Mean planned expenditure across the block. The honest seed while there is
+   *  not yet enough logged data to measure one - and it follows the plan rather
+   *  than sitting at a number typed in once. */
+  const plannedTdee = $derived.by(() => {
+    const xs = (p?.days ?? []).map((d: any) => d.tdee_est_kcal)
+                 .filter((v: any) => v != null).map(Number);
+    return xs.length ? mean(xs) : null;
+  });
+
   const f = (n: any, d = 1) => n == null ? '--' : Number(n).toFixed(d);
   const n0 = (n: any) => n == null ? '--' : Math.round(Number(n)).toLocaleString();
 </script>
@@ -203,7 +212,7 @@
               {todayDay.exercise?.name ?? 'Rest'}
             </p>
             <p class="tnum mt-1 text-xs text-muted">
-              {n0(todayDay.kcal_target)} kcal &middot; {f(todayDay.protein_target_g, 0)}g protein &middot; 5 meals
+              {n0(todayDay.kcal_target)} kcal budget &middot; {f(todayDay.protein_target_g, 0)}g protein
             </p>
           </div>
           <span class="shrink-0 pt-1 text-fast">&rarr;</span>
@@ -221,7 +230,8 @@
           from that.
         </p>
         <p class="tnum mt-3 text-xs text-muted">
-          Seed estimate until then: 3,020 kcal maintenance &middot; 88.0 kg start &middot; target ~80 kg
+          Seed estimate until then: {n0(plannedTdee)} kcal maintenance &middot;
+          {f(p.profile?.start_weight_kg)} kg start &middot; day 90 near 82 kg
         </p>
       </section>
     {:else}
@@ -367,6 +377,36 @@
       </div>
     </section>
 
+    <!-- standing orders: ticked daily on Today, but the reasoning lives here,
+         where you are reading rather than logging. -->
+    {#if p.supplements?.length}
+      <section class="panel p-5">
+        <p class="eyebrow">Standing orders</p>
+        <p class="mt-1 text-xs text-muted">
+          Two supplements and one timing rule. Ticked each day on the Today screen.
+        </p>
+        <div class="mt-4 space-y-4">
+          {#each p.supplements as sup}
+            <div class="border-b border-line pb-4 last:border-0 last:pb-0">
+              <p class="text-sm font-semibold">{sup.name}</p>
+              <p class="tnum mt-0.5 text-[11px] leading-relaxed text-fed">{sup.dose}</p>
+              <p class="mt-0.5 text-[11px] leading-relaxed text-muted">{sup.timing}</p>
+              <p class="mt-2 text-[12px] leading-relaxed">{sup.why}</p>
+              {#if sup.notes?.length}
+                <ul class="mt-2.5 space-y-1.5">
+                  {#each sup.notes as note}
+                    <li class="flex gap-2 text-[11px] leading-relaxed text-muted">
+                      <span class="shrink-0 text-fast">&middot;</span><span>{note}</span>
+                    </li>
+                  {/each}
+                </ul>
+              {/if}
+            </div>
+          {/each}
+        </div>
+      </section>
+    {/if}
+
     <!-- energy -->
     <section class="panel mb-4 p-5">
       <p class="eyebrow">Adaptive TDEE</p>
@@ -376,8 +416,9 @@
       {:else}
         <p class="tnum mt-1 text-4xl font-bold text-muted/40">--</p>
         <p class="mt-1 text-xs leading-relaxed text-muted">
-          Needs ~14 days of weight and intake. Seed estimate is
-          <span class="tnum text-bone">3,020 kcal</span> from Mifflin-St Jeor.
+          Needs ~14 days of weight and intake. Until then the plan runs on
+          <span class="tnum text-bone">{n0(plannedTdee)} kcal</span>, built from resting
+          metabolism, steps, sessions and digestion &mdash; not a whole-day multiplier.
         </p>
       {/if}
       {#if avgBalance != null}

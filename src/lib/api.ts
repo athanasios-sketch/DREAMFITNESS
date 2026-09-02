@@ -16,9 +16,24 @@ export const shiftDate = (iso: string, days: number): string => {
 let _library: any[] | null = null;
 async function mealLibrary() {
   if (_library) return _library;
-  const { data } = await supabase.from('meals').select('*').order('slot');
-  _library = data ?? [];
+  // `items` is the gram-level breakdown; meals.protein_g and friends are a SUM
+  // over it, maintained by the database. Sorted here so every screen agrees.
+  const { data } = await supabase
+    .from('meals').select('*, items:meal_ingredients(*)').order('slot');
+  _library = (data ?? []).map((m: any) => ({
+    ...m,
+    items: [...(m.items ?? [])].sort((a: any, b: any) => a.order_index - b.order_index),
+  }));
   return _library;
+}
+
+let _supps: any[] | null = null;
+export async function loadSupplements() {
+  if (_supps) return _supps;
+  const { data } = await supabase
+    .from('supplements').select('*').eq('active', true).order('sort_order');
+  _supps = data ?? [];
+  return _supps;
 }
 
 let _profile: any = null;
@@ -85,21 +100,24 @@ export async function loadDay(date: string) {
   const { data: log } = await supabase
     .from('day_logs').select('*').eq('log_date', date).maybeSingle();
 
-  let mealLogs: any[] = [], sets: any[] = [], extras: any[] = [];
+  let mealLogs: any[] = [], sets: any[] = [], extras: any[] = [], suppLogs: any[] = [];
   if (log) {
-    const [a, b, c] = await Promise.all([
+    const [a, b, c, d] = await Promise.all([
       supabase.from('meal_logs').select('*').eq('day_log_id', log.id),
       supabase.from('set_logs').select('*').eq('day_log_id', log.id).order('id'),
       supabase.from('extra_items').select('*').eq('day_log_id', log.id).order('id'),
+      supabase.from('supplement_logs').select('*').eq('day_log_id', log.id),
     ]);
     mealLogs = a.data ?? []; sets = b.data ?? []; extras = c.data ?? [];
+    suppLogs = d.data ?? [];
   }
 
   const { data: score } = await supabase
     .from('daily_scores').select('*').eq('score_date', date).maybeSingle();
 
-  // Both are static-ish reference data - fetch once per session, not per day view.
-  const [library, prof] = await Promise.all([mealLibrary(), profile()]);
+  // All static-ish reference data - fetched once per session, not per day view.
+  const [library, prof, supplements] = await Promise.all([
+    mealLibrary(), profile(), loadSupplements()]);
 
   // copy before sorting: this array ends up inside $state and must not be mutated in place
   const planned = [...(pd?.planned ?? [])].sort((x: any, y: any) => x.slot_index - y.slot_index);
@@ -113,7 +131,8 @@ export async function loadDay(date: string) {
              swapped: actual.id !== p.meal.id };
   });
 
-  return { programDay: pd, log, slots, planned, sets, extras, score, meals, profile: prof };
+  return { programDay: pd, log, slots, planned, sets, extras, score, meals,
+           profile: prof, supplements, suppLogs };
 }
 
 async function uid() {
@@ -159,11 +178,30 @@ export const swapMeal = (date: string, slot: any, mealId: number) =>
 export const setPortion = (date: string, slot: any, portion: number) =>
   writeSlot(date, slot, { portion });
 
+/** Daily targets are derived from bodyweight, so they go stale the moment the
+ *  scale moves. Cheap enough to recompute the whole 90 days. */
+export async function planTargets(from?: string) {
+  const { data, error } = await supabase.rpc('plan_targets', { p_from: from ?? null });
+  if (error) throw error;
+  return data as number;
+}
+
 export async function saveMetrics(date: string, fields: Record<string, any>) {
   const log = await ensureDayLog(date);
   const clean = Object.fromEntries(
     Object.entries(fields).map(([k, v]) => [k, v === '' || v === undefined ? null : v]));
   const { error } = await supabase.from('day_logs').update(clean).eq('id', log.id);
+  if (error) throw error;
+  // a new weight re-prices every remaining day of the plan
+  if ('weight_kg' in clean && clean.weight_kg != null) await planTargets();
+}
+
+/** Ticking a supplement needs the parent day_log, same as a meal or a set. */
+export async function toggleSupplement(date: string, supplementId: number, taken: boolean) {
+  const log = await ensureDayLog(date);
+  const { error } = await supabase.from('supplement_logs').upsert({
+    user_id: log.user_id, day_log_id: log.id, supplement_id: supplementId, taken,
+  }, { onConflict: 'day_log_id,supplement_id' });
   if (error) throw error;
 }
 
@@ -194,17 +232,19 @@ export async function addExtra(date: string, item: any) {
 
 /** The 90-cell grid: every program day joined to its score (if any). */
 export async function loadProgram() {
-  const [{ data: days }, { data: scores }, { data: logs }, { data: profile }] = await Promise.all([
+  const [{ data: days }, { data: scores }, { data: logs }, { data: profile }, supplements]
+    = await Promise.all([
     supabase.from('program_days')
-      .select('day_no, day_date, day_type, kcal_target, protein_target_g, exercise:exercises(code, name, category)')
+      .select('day_no, day_date, day_type, kcal_target, menu_kcal, tdee_est_kcal, protein_target_g, exercise:exercises(code, name, category)')
       .order('day_no'),
     supabase.from('daily_scores').select('*').order('score_date'),
     supabase.from('day_logs')
       .select('log_date, weight_kg, waist_cm, chest_cm, arms_cm, steps, coffee_cups, water_l')
       .order('log_date'),
     supabase.from('profiles').select('*').maybeSingle(),
+    loadSupplements(),
   ]);
-  return { days: days ?? [], scores: scores ?? [], logs: logs ?? [], profile };
+  return { days: days ?? [], scores: scores ?? [], logs: logs ?? [], profile, supplements };
 }
 
 /** The meal library. Superseded v1 fasting meals are kept in the DB for

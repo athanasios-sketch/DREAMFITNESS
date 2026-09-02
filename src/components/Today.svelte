@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { athensToday, shiftDate, loadDay, toggleMeal, swapMeal, setPortion,
            saveMetrics, addSet, addExtra, deleteRow, isoWeekday, WEEKDAYS,
-           sessionKcal, walkRunMet } from '../lib/api';
+           sessionKcal, walkRunMet, toggleSupplement } from '../lib/api';
 
   const TODAY = athensToday();
   let date = $state(TODAY);
@@ -12,6 +12,7 @@
   let openMovement = $state<string | null>(null);
   let openMeal     = $state<number | null>(null);
   let swapFor      = $state<number | null>(null);
+  let openSupp     = $state<number | null>(null);
   let showMeasure  = $state(false);
 
   const load = async () => {
@@ -28,20 +29,61 @@
   const go = (n: number) => goto(shiftDate(date, n));
 
   const eaten = $derived.by(() => {
-    if (!d) return { p: 0, c: 0, f: 0, k: 0 };
-    const t = { p: 0, c: 0, f: 0, k: 0 };
+    if (!d) return { p: 0, c: 0, f: 0, k: 0, fib: 0, veg: 0 };
+    const t = { p: 0, c: 0, f: 0, k: 0, fib: 0, veg: 0 };
     for (const s of d.slots) if (s.log?.completed) {
       const q = Number(s.log.portion ?? 1);
       t.p += +s.meal.protein_g * q; t.c += +s.meal.carbs_g * q;
       t.f += +s.meal.fat_g * q;     t.k += +s.meal.kcal * q;
+      t.fib += +(s.meal.fiber_g ?? 0) * q;
+      t.veg += +(s.meal.veg_g ?? 0) * q;
     }
     for (const x of d.extras) if (x.kind === 'food') {
       t.p += +x.protein_g; t.c += +x.carbs_g; t.f += +x.fat_g; t.k += +x.kcal;
+      // off-plan food carries fibre when the label is filled in, but nothing
+      // knows whether it was a vegetable - so veg stays a plan-side number
+      t.fib += +(x.fiber_g ?? 0);
     }
     return t;
   });
 
   const volume = $derived(d ? d.sets.reduce((a: number, s: any) => a + +s.volume_load, 0) : 0);
+
+  /** The rotation serves a fixed menu; the budget moves with the day's session.
+   *  Positive = more on the plate than today's expenditure pays for. */
+  const menuGap = $derived(
+    d?.programDay?.menu_kcal ? +d.programDay.menu_kcal - +d.programDay.kcal_target : 0);
+
+  /** Over budget: the SNACK closest in size to the gap. "Drop a snack" is
+   *  advice; naming it is an instruction. Deliberately never a main course -
+   *  dropping a dinner to save 200 kcal costs 50g of protein, which is the
+   *  wrong trade on a plan whose whole point is holding muscle. */
+  const dropPick = $derived.by(() => {
+    if (!d?.slots?.length || menuGap <= 0) return null;
+    const best = d.slots
+      .filter((s: any) => s.meal.slot === 'snack')
+      .sort((a: any, b: any) =>
+        Math.abs(+a.meal.kcal - menuGap) - Math.abs(+b.meal.kcal - menuGap))[0];
+    return best && Math.abs(+best.meal.kcal - menuGap) <= 150 ? best : null;
+  });
+  /** Under budget: βρώμη is 3.79 kcal/g dry, which turns the gap into a number
+   *  you can put on a scale. Rounded to 5g because nobody weighs to the gram. */
+  const oatsGrams = $derived(menuGap < 0 ? Math.round(-menuGap / 3.79 / 5) * 5 : 0);
+
+  // ---- supplements
+  const suppOn = (id: number) =>
+    !!(d?.suppLogs ?? []).find((l: any) => l.supplement_id === id && l.taken);
+  /** The coffee-and-iron rule only bites on fasting days, when every milligram
+   *  of iron on the plate is non-heme. It is not a miss on a fed day. */
+  const suppDue = $derived((d?.supplements ?? []).filter(
+    (s: any) => s.kind !== 'habit' || d?.programDay?.day_type === 'fasting'));
+  const suppDone = $derived(suppDue.filter((s: any) => suppOn(s.id)).length);
+
+  async function flipSupp(sup: any) {
+    if (busy) return; busy = true;
+    try { await toggleSupplement(date, sup.id, !suppOn(sup.id)); await load(); }
+    finally { busy = false; }
+  }
 
   /** Body measurements are a weekly ritual. Daily scale readings are mostly
    *  water and salt, and reading noise as progress is how people quit. */
@@ -282,7 +324,15 @@
 
     <!-- energy in / out -->
     <section class="panel p-5">
-      <p class="eyebrow">Energy</p>
+      <div class="flex items-baseline justify-between gap-2">
+        <p class="eyebrow">Energy</p>
+        {#if pd.tdee_est_kcal}
+          <p class="tnum text-[11px] text-muted">
+            planned {n0(pd.kcal_target)} in / {n0(pd.tdee_est_kcal)} out
+            <span class="ml-1 text-peak">&minus;{n0(pd.tdee_est_kcal - pd.kcal_target)}</span>
+          </p>
+        {/if}
+      </div>
       {#if sc?.burn_kcal}
         <div class="mt-3 flex items-baseline justify-between">
           <div><p class="text-xs text-muted">In</p>
@@ -293,8 +343,19 @@
                <p class="tnum text-2xl font-bold {sc.energy_balance < 0 ? 'text-peak' : 'text-warn'}">
                  {sc.energy_balance > 0 ? '+' : ''}{n0(sc.energy_balance)}</p></div>
         </div>
-        <p class="tnum mt-3 border-t border-line pt-3 text-xs text-muted">
-          Resting {n0(sc.bmr_kcal)} · Walking {n0(sc.steps_kcal)} · Training {n0(sc.training_kcal)}
+        <div class="mt-3 grid grid-cols-5 gap-1 border-t border-line pt-3 text-center">
+          {#each [['Resting', sc.bmr_kcal], ['Moving', sc.neat_kcal], ['Walking', sc.steps_kcal],
+                  ['Training', sc.training_kcal], ['Food', sc.tef_kcal]] as [label, v]}
+            <div>
+              <p class="tnum text-sm font-semibold">{n0(+(v ?? 0))}</p>
+              <p class="text-[9px] uppercase tracking-wider text-muted">{label}</p>
+            </div>
+          {/each}
+        </div>
+        <p class="mt-2.5 text-[11px] leading-relaxed text-muted">
+          <span class="text-bone/70">Food</span> is what digestion itself costs - roughly a quarter of
+          the protein you eat, which on this plan is not a rounding error.
+          <span class="text-bone/70">Moving</span> is the everyday activity your step count misses.
         </p>
       {:else}
         <p class="mt-2 text-sm text-muted">
@@ -303,14 +364,47 @@
       {/if}
     </section>
 
-    <!-- macros -->
+    <!-- macros. The target is a budget derived from what today costs you, so it
+         moves with the session; the rotation's menu does not. Where they differ
+         you need to know by how much, and in which direction. -->
     <section class="panel p-5">
-      <p class="eyebrow">Intake</p>
+      <div class="flex items-baseline justify-between gap-2">
+        <p class="eyebrow">Intake</p>
+        {#if pd.menu_kcal}
+          <p class="tnum text-[11px] text-muted">plan serves {n0(pd.menu_kcal)}</p>
+        {/if}
+      </div>
+
+      {#if pd.menu_kcal && Math.abs(menuGap) >= 60}
+        <p class="mt-3 rounded-lg border-l-2 py-2.5 pl-3 pr-3 text-[11px] leading-relaxed
+                  {menuGap > 0 ? 'border-warn bg-warn/5' : 'border-fast bg-fast/5'}">
+          {#if menuGap > 0}
+            Today's menu comes to <span class="tnum">{n0(menuGap)}</span> kcal over budget &mdash;
+            {isRest ? 'a rest day has no session to pay for a full menu.'
+                    : 'a light session does not cover the whole rotation.'}
+            {#if dropPick}
+              Drop <span class="text-bone">{dropPick.meal.name}</span>
+              (<span class="tnum">{n0(dropPick.meal.kcal)}</span>) and you land
+              <span class="tnum">{n0(Math.abs(menuGap - +dropPick.meal.kcal))}</span> kcal from it.
+            {:else}
+              Halve a portion.
+            {/if}
+          {:else}
+            The rotation is <span class="tnum">{n0(-menuGap)}</span> kcal short of what today costs you
+            &mdash; this is the day to eat the difference, not bank it.
+            Add <span class="tnum">{oatsGrams}g</span> of dry βρώμη, or the honey and milks in the library.
+          {/if}
+        </p>
+      {/if}
+
       <div class="mt-4 space-y-3">
         {#each [['Protein', eaten.p, +pd.protein_target_g, 'g', true],
                 ['Calories', eaten.k, pd.kcal_target, '', false],
                 ['Carbs', eaten.c, +pd.carbs_target_g, 'g', false],
-                ['Fat', eaten.f, +pd.fat_target_g, 'g', false]] as [label, val, tgt, unit, key]}
+                ['Fat', eaten.f, +pd.fat_target_g, 'g', false],
+                ['Fibre', eaten.fib, +(d.profile?.fiber_target_g ?? 35), 'g', false],
+                ['Vegetables', eaten.veg, +(d.profile?.veg_target_g ?? 400), 'g', false]]
+          as [label, val, tgt, unit, key]}
           <div>
             <div class="flex justify-between text-sm">
               <span class={key ? 'font-semibold text-bone' : 'text-muted'}>{label}</span>
@@ -325,6 +419,15 @@
           </div>
         {/each}
       </div>
+
+      {#if fasting}
+        <p class="mt-4 border-t border-line pt-3 text-[11px] leading-relaxed text-muted">
+          A fasting day runs <span class="text-bone">45&ndash;60 g of fibre</span> against ~32 g on a
+          fed one &mdash; chickpeas, edamame, lentils and oats carry it in with the protein, and there
+          is no way to buy one without the other. If it sits badly, halve the chickpeas and the
+          lentils for a fortnight and build back up.
+        </p>
+      {/if}
     </section>
 
     <!-- meals: tick to eat, tap the name to cook -->
@@ -432,6 +535,69 @@
         {/each}
       </div>
     </section>
+
+    <!-- supplements: only the ones that earn their place on THIS plan - one for
+         holding muscle in a deficit, one for a Greek autumn, and one timing
+         rule that costs nothing and is easy to get wrong. -->
+    {#if suppDue.length}
+      <section class="panel p-5">
+        <div class="flex items-baseline justify-between gap-2">
+          <p class="eyebrow">Supplements</p>
+          <p class="tnum text-[11px] {suppDone === suppDue.length ? 'text-peak' : 'text-muted'}">
+            {suppDone}/{suppDue.length}
+          </p>
+        </div>
+        <div class="mt-3 space-y-2">
+          {#each suppDue as sup}
+            {@const on = suppOn(sup.id)}
+            {@const shown = openSupp === sup.id}
+            <div class="overflow-hidden rounded-lg border
+                        {on ? 'border-peak/40 bg-peak/5' : 'border-line'}">
+              <div class="flex items-center gap-3 p-3">
+                <button onclick={() => flipSupp(sup)} aria-label="Mark {sup.name} taken"
+                  class="grid size-6 shrink-0 place-items-center rounded-md border-2 text-ink
+                         {on ? 'border-peak bg-peak' : 'border-line'}">
+                  {#if on}<span class="text-xs font-bold">&check;</span>{/if}
+                </button>
+                <button onclick={() => (openSupp = shown ? null : sup.id)}
+                  class="min-w-0 flex-1 text-left">
+                  <span class="flex items-center gap-1.5">
+                    <span class="truncate text-sm font-semibold">{sup.name}</span>
+                    {#if sup.kind === 'habit'}
+                      <span class="shrink-0 rounded bg-fast/15 px-1.5 text-[10px] text-fast">timing</span>
+                    {/if}
+                  </span>
+                  <span class="block truncate text-xs text-muted">{sup.dose}</span>
+                </button>
+                <span class="shrink-0 text-muted">{shown ? '\u2212' : '+'}</span>
+              </div>
+
+              {#if shown}
+                <div class="space-y-3 border-t border-line px-3 py-3">
+                  <div>
+                    <p class="eyebrow">When</p>
+                    <p class="mt-1 text-[12px] leading-relaxed">{sup.timing}</p>
+                  </div>
+                  <div>
+                    <p class="eyebrow">Why it is here</p>
+                    <p class="mt-1 text-[12px] leading-relaxed text-muted">{sup.why}</p>
+                  </div>
+                  {#if sup.notes?.length}
+                    <ul class="space-y-2 border-t border-line pt-3">
+                      {#each sup.notes as note}
+                        <li class="flex gap-2.5 text-[11px] leading-relaxed text-muted">
+                          <span class="text-fast">&middot;</span><span>{note}</span>
+                        </li>
+                      {/each}
+                    </ul>
+                  {/if}
+                </div>
+              {/if}
+            </div>
+          {/each}
+        </div>
+      </section>
+    {/if}
 
     <!-- training: shown on rest days too, because a Sunday you trained anyway
          is data, and hiding the form is how that data gets lost -->
