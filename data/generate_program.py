@@ -74,6 +74,14 @@ MEALS = [
     ("DF2v2","dinner",   "fasting", 2, "Garlic Shrimp & Rice+",      56, 55, 12, 543,
      "250g shrimp, 200g rice, 10g olive oil",
      "Shrimp 200g->250g. Toss in olive oil & garlic powder. Airfry 200C/8min."),
+
+    # --- 5th eating occasion (v3): closes the gap to the 2350 kcal / 205g target ---
+    ("S2",   "snack",    "regular", 3, "Cottage Cheese & Berries",   28, 40,  9, 339,
+     "200g cottage cheese 2%, 150g mixed berries, 15g honey, 10g almonds",
+     "No cooking. Stir honey through the cottage cheese, top with berries and crushed almonds."),
+    ("SF2",  "snack",    "fasting", 3, "Vegan Protein Smoothie",     41, 39,  7, 365,
+     "40g vegan protein, 250ml soy milk, 1 banana, ice",
+     "Blend everything with ice. Drink post-training or mid-afternoon."),
 ]
 M = {m[0]: m for m in MEALS}
 
@@ -107,13 +115,14 @@ def build():
         if wd in FASTING_WEEKDAYS:
             dtype = "Fasting"
             dinner = "DF1v2" if wd == 2 else "DF2v2"
-            ids = ["BF1v2", "LF1v2", "SF1v2", dinner]
+            ids = ["BF1v2", "LF1v2", "SF1v2", dinner, "SF2"]
             legacy = ["BF1", "LF1", "SF1", "DF1" if wd == 2 else "DF2"]
         else:
             dtype = "Regular"
             reg_n += 1
-            ids = ["B1","L1","S1","D1"] if reg_n % 2 == 1 else ["B2","L2","S1","D2"]
-            legacy = ids
+            ids = (["B1","L1","S1","D1","S2"] if reg_n % 2 == 1
+                   else ["B2","L2","S1","D2","S2"])
+            legacy = ids[:4]
         p, c, f, k = macros(ids)
         lp = macros(legacy)[0]
         days.append({
@@ -140,7 +149,7 @@ def main():
 
     with open(OUT/"program_optimized.csv","w",newline="") as fh:
         w = csv.writer(fh)
-        w.writerow(["Day","Date","Weekday","Week","Type","Meal 1","Meal 2","Meal 3","Meal 4",
+        w.writerow(["Day","Date","Weekday","Week","Type","Meal 1","Meal 2","Meal 3","Meal 4","Meal 5",
                     "Exercise","Steps","Protein (g)","Carbs (g)","Fat (g)","Kcal","Water (L)",
                     "Old Protein (g)","Protein Delta"])
         for d in days:
@@ -170,6 +179,9 @@ if __name__ == "__main__":
     ex = collections.Counter(d["exercise"] for d in days)
     print("\nsession counts /90d:", dict(sorted(ex.items())))
 
+    KCAL_TARGET, PROT_TARGET = 2350, 205
+    kc = [d["kcal"] for d in days]
+    print(f"\nkcal band: {min(kc)}-{max(kc)}  mean {sum(kc)/90:.0f}  (target {KCAL_TARGET})")
     prot = [d["protein_g"] for d in days]
     old  = [d["legacy_protein_g"] for d in days]
     print(f"\nprotein range: {min(prot)}-{max(prot)}g   (was {min(old)}-{max(old)}g)")

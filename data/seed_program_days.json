@@ -10,17 +10,18 @@
       "BF1v2",
       "LF1v2",
       "SF1v2",
-      "DF1v2"
+      "DF1v2",
+      "SF2"
     ],
     "exercise": "C1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 163,
-    "carbs_g": 182,
-    "fat_g": 70,
-    "kcal": 1970,
+    "protein_g": 204,
+    "carbs_g": 221,
+    "fat_g": 77,
+    "kcal": 2335,
     "legacy_protein_g": 115,
-    "protein_delta": 48
+    "protein_delta": 89
   },
   {
     "day": 2,
@@ -33,17 +34,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 3,
@@ -56,17 +58,18 @@
       "BF1v2",
       "LF1v2",
       "SF1v2",
-      "DF2v2"
+      "DF2v2",
+      "SF2"
     ],
     "exercise": "R1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 172,
-    "carbs_g": 195,
-    "fat_g": 60,
-    "kcal": 1981,
+    "protein_g": 213,
+    "carbs_g": 234,
+    "fat_g": 67,
+    "kcal": 2346,
     "legacy_protein_g": 125,
-    "protein_delta": 47
+    "protein_delta": 88
   },
   {
     "day": 4,
@@ -79,17 +82,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E3",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 5,
@@ -102,17 +106,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E2",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 6,
@@ -125,17 +130,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E4",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 7,
@@ -148,17 +154,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E5",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 8,
@@ -171,17 +178,18 @@
       "BF1v2",
       "LF1v2",
       "SF1v2",
-      "DF1v2"
+      "DF1v2",
+      "SF2"
     ],
     "exercise": "C1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 163,
-    "carbs_g": 182,
-    "fat_g": 70,
-    "kcal": 1970,
+    "protein_g": 204,
+    "carbs_g": 221,
+    "fat_g": 77,
+    "kcal": 2335,
     "legacy_protein_g": 115,
-    "protein_delta": 48
+    "protein_delta": 89
   },
   {
     "day": 9,
@@ -194,17 +202,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 10,
@@ -217,17 +226,18 @@
       "BF1v2",
       "LF1v2",
       "SF1v2",
-      "DF2v2"
+      "DF2v2",
+      "SF2"
     ],
     "exercise": "R1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 172,
-    "carbs_g": 195,
-    "fat_g": 60,
-    "kcal": 1981,
+    "protein_g": 213,
+    "carbs_g": 234,
+    "fat_g": 67,
+    "kcal": 2346,
     "legacy_protein_g": 125,
-    "protein_delta": 47
+    "protein_delta": 88
   },
   {
     "day": 11,
@@ -240,17 +250,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E3",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 12,
@@ -263,17 +274,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E2",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 13,
@@ -286,17 +298,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E4",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 14,
@@ -309,17 +322,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E5",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 15,
@@ -332,17 +346,18 @@
       "BF1v2",
       "LF1v2",
       "SF1v2",
-      "DF1v2"
+      "DF1v2",
+      "SF2"
     ],
     "exercise": "C1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 163,
-    "carbs_g": 182,
-    "fat_g": 70,
-    "kcal": 1970,
+    "protein_g": 204,
+    "carbs_g": 221,
+    "fat_g": 77,
+    "kcal": 2335,
     "legacy_protein_g": 115,
-    "protein_delta": 48
+    "protein_delta": 89
   },
   {
     "day": 16,
@@ -355,17 +370,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 17,
@@ -378,17 +394,18 @@
       "BF1v2",
       "LF1v2",
       "SF1v2",
-      "DF2v2"
+      "DF2v2",
+      "SF2"
     ],
     "exercise": "R1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 172,
-    "carbs_g": 195,
-    "fat_g": 60,
-    "kcal": 1981,
+    "protein_g": 213,
+    "carbs_g": 234,
+    "fat_g": 67,
+    "kcal": 2346,
     "legacy_protein_g": 125,
-    "protein_delta": 47
+    "protein_delta": 88
   },
   {
     "day": 18,
@@ -401,17 +418,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E3",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 19,
@@ -424,17 +442,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E2",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 20,
@@ -447,17 +466,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E4",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 21,
@@ -470,17 +490,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E5",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 22,
@@ -493,17 +514,18 @@
       "BF1v2",
       "LF1v2",
       "SF1v2",
-      "DF1v2"
+      "DF1v2",
+      "SF2"
     ],
     "exercise": "C1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 163,
-    "carbs_g": 182,
-    "fat_g": 70,
-    "kcal": 1970,
+    "protein_g": 204,
+    "carbs_g": 221,
+    "fat_g": 77,
+    "kcal": 2335,
     "legacy_protein_g": 115,
-    "protein_delta": 48
+    "protein_delta": 89
   },
   {
     "day": 23,
@@ -516,17 +538,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 24,
@@ -539,17 +562,18 @@
       "BF1v2",
       "LF1v2",
       "SF1v2",
-      "DF2v2"
+      "DF2v2",
+      "SF2"
     ],
     "exercise": "R1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 172,
-    "carbs_g": 195,
-    "fat_g": 60,
-    "kcal": 1981,
+    "protein_g": 213,
+    "carbs_g": 234,
+    "fat_g": 67,
+    "kcal": 2346,
     "legacy_protein_g": 125,
-    "protein_delta": 47
+    "protein_delta": 88
   },
   {
     "day": 25,
@@ -562,17 +586,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E3",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 26,
@@ -585,17 +610,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E2",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 27,
@@ -608,17 +634,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E4",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 28,
@@ -631,17 +658,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E5",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 29,
@@ -654,17 +682,18 @@
       "BF1v2",
       "LF1v2",
       "SF1v2",
-      "DF1v2"
+      "DF1v2",
+      "SF2"
     ],
     "exercise": "C1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 163,
-    "carbs_g": 182,
-    "fat_g": 70,
-    "kcal": 1970,
+    "protein_g": 204,
+    "carbs_g": 221,
+    "fat_g": 77,
+    "kcal": 2335,
     "legacy_protein_g": 115,
-    "protein_delta": 48
+    "protein_delta": 89
   },
   {
     "day": 30,
@@ -677,17 +706,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 31,
@@ -700,17 +730,18 @@
       "BF1v2",
       "LF1v2",
       "SF1v2",
-      "DF2v2"
+      "DF2v2",
+      "SF2"
     ],
     "exercise": "R1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 172,
-    "carbs_g": 195,
-    "fat_g": 60,
-    "kcal": 1981,
+    "protein_g": 213,
+    "carbs_g": 234,
+    "fat_g": 67,
+    "kcal": 2346,
     "legacy_protein_g": 125,
-    "protein_delta": 47
+    "protein_delta": 88
   },
   {
     "day": 32,
@@ -723,17 +754,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E3",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 33,
@@ -746,17 +778,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E2",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 34,
@@ -769,17 +802,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E4",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 35,
@@ -792,17 +826,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E5",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 36,
@@ -815,17 +850,18 @@
       "BF1v2",
       "LF1v2",
       "SF1v2",
-      "DF1v2"
+      "DF1v2",
+      "SF2"
     ],
     "exercise": "C1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 163,
-    "carbs_g": 182,
-    "fat_g": 70,
-    "kcal": 1970,
+    "protein_g": 204,
+    "carbs_g": 221,
+    "fat_g": 77,
+    "kcal": 2335,
     "legacy_protein_g": 115,
-    "protein_delta": 48
+    "protein_delta": 89
   },
   {
     "day": 37,
@@ -838,17 +874,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 38,
@@ -861,17 +898,18 @@
       "BF1v2",
       "LF1v2",
       "SF1v2",
-      "DF2v2"
+      "DF2v2",
+      "SF2"
     ],
     "exercise": "R1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 172,
-    "carbs_g": 195,
-    "fat_g": 60,
-    "kcal": 1981,
+    "protein_g": 213,
+    "carbs_g": 234,
+    "fat_g": 67,
+    "kcal": 2346,
     "legacy_protein_g": 125,
-    "protein_delta": 47
+    "protein_delta": 88
   },
   {
     "day": 39,
@@ -884,17 +922,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E3",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 40,
@@ -907,17 +946,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E2",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 41,
@@ -930,17 +970,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E4",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 42,
@@ -953,17 +994,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E5",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 43,
@@ -976,17 +1018,18 @@
       "BF1v2",
       "LF1v2",
       "SF1v2",
-      "DF1v2"
+      "DF1v2",
+      "SF2"
     ],
     "exercise": "C1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 163,
-    "carbs_g": 182,
-    "fat_g": 70,
-    "kcal": 1970,
+    "protein_g": 204,
+    "carbs_g": 221,
+    "fat_g": 77,
+    "kcal": 2335,
     "legacy_protein_g": 115,
-    "protein_delta": 48
+    "protein_delta": 89
   },
   {
     "day": 44,
@@ -999,17 +1042,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 45,
@@ -1022,17 +1066,18 @@
       "BF1v2",
       "LF1v2",
       "SF1v2",
-      "DF2v2"
+      "DF2v2",
+      "SF2"
     ],
     "exercise": "R1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 172,
-    "carbs_g": 195,
-    "fat_g": 60,
-    "kcal": 1981,
+    "protein_g": 213,
+    "carbs_g": 234,
+    "fat_g": 67,
+    "kcal": 2346,
     "legacy_protein_g": 125,
-    "protein_delta": 47
+    "protein_delta": 88
   },
   {
     "day": 46,
@@ -1045,17 +1090,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E3",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 47,
@@ -1068,17 +1114,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E2",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 48,
@@ -1091,17 +1138,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E4",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 49,
@@ -1114,17 +1162,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E5",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 50,
@@ -1137,17 +1186,18 @@
       "BF1v2",
       "LF1v2",
       "SF1v2",
-      "DF1v2"
+      "DF1v2",
+      "SF2"
     ],
     "exercise": "C1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 163,
-    "carbs_g": 182,
-    "fat_g": 70,
-    "kcal": 1970,
+    "protein_g": 204,
+    "carbs_g": 221,
+    "fat_g": 77,
+    "kcal": 2335,
     "legacy_protein_g": 115,
-    "protein_delta": 48
+    "protein_delta": 89
   },
   {
     "day": 51,
@@ -1160,17 +1210,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 52,
@@ -1183,17 +1234,18 @@
       "BF1v2",
       "LF1v2",
       "SF1v2",
-      "DF2v2"
+      "DF2v2",
+      "SF2"
     ],
     "exercise": "R1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 172,
-    "carbs_g": 195,
-    "fat_g": 60,
-    "kcal": 1981,
+    "protein_g": 213,
+    "carbs_g": 234,
+    "fat_g": 67,
+    "kcal": 2346,
     "legacy_protein_g": 125,
-    "protein_delta": 47
+    "protein_delta": 88
   },
   {
     "day": 53,
@@ -1206,17 +1258,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E3",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 54,
@@ -1229,17 +1282,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E2",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 55,
@@ -1252,17 +1306,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E4",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 56,
@@ -1275,17 +1330,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E5",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 57,
@@ -1298,17 +1354,18 @@
       "BF1v2",
       "LF1v2",
       "SF1v2",
-      "DF1v2"
+      "DF1v2",
+      "SF2"
     ],
     "exercise": "C1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 163,
-    "carbs_g": 182,
-    "fat_g": 70,
-    "kcal": 1970,
+    "protein_g": 204,
+    "carbs_g": 221,
+    "fat_g": 77,
+    "kcal": 2335,
     "legacy_protein_g": 115,
-    "protein_delta": 48
+    "protein_delta": 89
   },
   {
     "day": 58,
@@ -1321,17 +1378,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 59,
@@ -1344,17 +1402,18 @@
       "BF1v2",
       "LF1v2",
       "SF1v2",
-      "DF2v2"
+      "DF2v2",
+      "SF2"
     ],
     "exercise": "R1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 172,
-    "carbs_g": 195,
-    "fat_g": 60,
-    "kcal": 1981,
+    "protein_g": 213,
+    "carbs_g": 234,
+    "fat_g": 67,
+    "kcal": 2346,
     "legacy_protein_g": 125,
-    "protein_delta": 47
+    "protein_delta": 88
   },
   {
     "day": 60,
@@ -1367,17 +1426,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E3",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 61,
@@ -1390,17 +1450,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E2",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 62,
@@ -1413,17 +1474,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E4",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 63,
@@ -1436,17 +1498,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E5",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 64,
@@ -1459,17 +1522,18 @@
       "BF1v2",
       "LF1v2",
       "SF1v2",
-      "DF1v2"
+      "DF1v2",
+      "SF2"
     ],
     "exercise": "C1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 163,
-    "carbs_g": 182,
-    "fat_g": 70,
-    "kcal": 1970,
+    "protein_g": 204,
+    "carbs_g": 221,
+    "fat_g": 77,
+    "kcal": 2335,
     "legacy_protein_g": 115,
-    "protein_delta": 48
+    "protein_delta": 89
   },
   {
     "day": 65,
@@ -1482,17 +1546,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 66,
@@ -1505,17 +1570,18 @@
       "BF1v2",
       "LF1v2",
       "SF1v2",
-      "DF2v2"
+      "DF2v2",
+      "SF2"
     ],
     "exercise": "R1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 172,
-    "carbs_g": 195,
-    "fat_g": 60,
-    "kcal": 1981,
+    "protein_g": 213,
+    "carbs_g": 234,
+    "fat_g": 67,
+    "kcal": 2346,
     "legacy_protein_g": 125,
-    "protein_delta": 47
+    "protein_delta": 88
   },
   {
     "day": 67,
@@ -1528,17 +1594,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E3",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 68,
@@ -1551,17 +1618,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E2",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 69,
@@ -1574,17 +1642,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E4",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 70,
@@ -1597,17 +1666,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E5",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 71,
@@ -1620,17 +1690,18 @@
       "BF1v2",
       "LF1v2",
       "SF1v2",
-      "DF1v2"
+      "DF1v2",
+      "SF2"
     ],
     "exercise": "C1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 163,
-    "carbs_g": 182,
-    "fat_g": 70,
-    "kcal": 1970,
+    "protein_g": 204,
+    "carbs_g": 221,
+    "fat_g": 77,
+    "kcal": 2335,
     "legacy_protein_g": 115,
-    "protein_delta": 48
+    "protein_delta": 89
   },
   {
     "day": 72,
@@ -1643,17 +1714,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 73,
@@ -1666,17 +1738,18 @@
       "BF1v2",
       "LF1v2",
       "SF1v2",
-      "DF2v2"
+      "DF2v2",
+      "SF2"
     ],
     "exercise": "R1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 172,
-    "carbs_g": 195,
-    "fat_g": 60,
-    "kcal": 1981,
+    "protein_g": 213,
+    "carbs_g": 234,
+    "fat_g": 67,
+    "kcal": 2346,
     "legacy_protein_g": 125,
-    "protein_delta": 47
+    "protein_delta": 88
   },
   {
     "day": 74,
@@ -1689,17 +1762,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E3",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 75,
@@ -1712,17 +1786,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E2",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 76,
@@ -1735,17 +1810,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E4",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 77,
@@ -1758,17 +1834,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E5",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 78,
@@ -1781,17 +1858,18 @@
       "BF1v2",
       "LF1v2",
       "SF1v2",
-      "DF1v2"
+      "DF1v2",
+      "SF2"
     ],
     "exercise": "C1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 163,
-    "carbs_g": 182,
-    "fat_g": 70,
-    "kcal": 1970,
+    "protein_g": 204,
+    "carbs_g": 221,
+    "fat_g": 77,
+    "kcal": 2335,
     "legacy_protein_g": 115,
-    "protein_delta": 48
+    "protein_delta": 89
   },
   {
     "day": 79,
@@ -1804,17 +1882,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 80,
@@ -1827,17 +1906,18 @@
       "BF1v2",
       "LF1v2",
       "SF1v2",
-      "DF2v2"
+      "DF2v2",
+      "SF2"
     ],
     "exercise": "R1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 172,
-    "carbs_g": 195,
-    "fat_g": 60,
-    "kcal": 1981,
+    "protein_g": 213,
+    "carbs_g": 234,
+    "fat_g": 67,
+    "kcal": 2346,
     "legacy_protein_g": 125,
-    "protein_delta": 47
+    "protein_delta": 88
   },
   {
     "day": 81,
@@ -1850,17 +1930,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E3",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 82,
@@ -1873,17 +1954,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E2",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 83,
@@ -1896,17 +1978,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E4",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 84,
@@ -1919,17 +2002,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E5",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 85,
@@ -1942,17 +2026,18 @@
       "BF1v2",
       "LF1v2",
       "SF1v2",
-      "DF1v2"
+      "DF1v2",
+      "SF2"
     ],
     "exercise": "C1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 163,
-    "carbs_g": 182,
-    "fat_g": 70,
-    "kcal": 1970,
+    "protein_g": 204,
+    "carbs_g": 221,
+    "fat_g": 77,
+    "kcal": 2335,
     "legacy_protein_g": 115,
-    "protein_delta": 48
+    "protein_delta": 89
   },
   {
     "day": 86,
@@ -1965,17 +2050,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 87,
@@ -1988,17 +2074,18 @@
       "BF1v2",
       "LF1v2",
       "SF1v2",
-      "DF2v2"
+      "DF2v2",
+      "SF2"
     ],
     "exercise": "R1",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 172,
-    "carbs_g": 195,
-    "fat_g": 60,
-    "kcal": 1981,
+    "protein_g": 213,
+    "carbs_g": 234,
+    "fat_g": 67,
+    "kcal": 2346,
     "legacy_protein_g": 125,
-    "protein_delta": 47
+    "protein_delta": 88
   },
   {
     "day": 88,
@@ -2011,17 +2098,18 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E3",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 89,
@@ -2034,17 +2122,18 @@
       "B1",
       "L1",
       "S1",
-      "D1"
+      "D1",
+      "S2"
     ],
     "exercise": "E2",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 185,
-    "carbs_g": 195,
-    "fat_g": 58,
-    "kcal": 2033,
+    "protein_g": 213,
+    "carbs_g": 235,
+    "fat_g": 67,
+    "kcal": 2372,
     "legacy_protein_g": 185,
-    "protein_delta": 0
+    "protein_delta": 28
   },
   {
     "day": 90,
@@ -2057,16 +2146,17 @@
       "B2",
       "L2",
       "S1",
-      "D2"
+      "D2",
+      "S2"
     ],
     "exercise": "E4",
     "steps_target": 10000,
     "water_target_l": 3.5,
-    "protein_g": 187,
-    "carbs_g": 180,
-    "fat_g": 51,
-    "kcal": 1920,
+    "protein_g": 215,
+    "carbs_g": 220,
+    "fat_g": 60,
+    "kcal": 2259,
     "legacy_protein_g": 187,
-    "protein_delta": 0
+    "protein_delta": 28
   }
 ]

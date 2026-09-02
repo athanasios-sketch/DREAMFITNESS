@@ -219,5 +219,31 @@
     "kcal": 543,
     "ingredients": "250g shrimp, 200g rice, 10g olive oil",
     "instructions": "Shrimp 200g->250g. Toss in olive oil & garlic powder. Airfry 200C/8min."
+  },
+  {
+    "id": "S2",
+    "slot": "snack",
+    "day_type": "regular",
+    "version": 3,
+    "name": "Cottage Cheese & Berries",
+    "protein_g": 28,
+    "carbs_g": 40,
+    "fat_g": 9,
+    "kcal": 339,
+    "ingredients": "200g cottage cheese 2%, 150g mixed berries, 15g honey, 10g almonds",
+    "instructions": "No cooking. Stir honey through the cottage cheese, top with berries and crushed almonds."
+  },
+  {
+    "id": "SF2",
+    "slot": "snack",
+    "day_type": "fasting",
+    "version": 3,
+    "name": "Vegan Protein Smoothie",
+    "protein_g": 41,
+    "carbs_g": 39,
+    "fat_g": 7,
+    "kcal": 365,
+    "ingredients": "40g vegan protein, 250ml soy milk, 1 banana, ice",
+    "instructions": "Blend everything with ice. Drink post-training or mid-afternoon."
   }
 ]
