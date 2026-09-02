@@ -1,0 +1,65 @@
+[
+  {
+    "id": "E1",
+    "category": "resistance",
+    "name": "Push (Chest/Shoulders/Triceps)",
+    "focus": "Incline Press, Overhead Press, Dips, Lateral Raises",
+    "est_kcal": 300,
+    "duration_min": 60,
+    "notes": "Progressive overload. RPE 7-8."
+  },
+  {
+    "id": "E2",
+    "category": "resistance",
+    "name": "Pull (Back/Biceps/Rear Delts)",
+    "focus": "Pull-ups/Lat Pulldown, Rows, Face Pulls, Bicep Curls",
+    "est_kcal": 300,
+    "duration_min": 60,
+    "notes": "Control the eccentric. Squeeze the back."
+  },
+  {
+    "id": "E3",
+    "category": "resistance",
+    "name": "Legs (Quads/Hams/Glutes/Calves)",
+    "focus": "Squats/Hack Squats, RDLs, Leg Extensions, Leg Curls",
+    "est_kcal": 375,
+    "duration_min": 68,
+    "notes": "Heavy compound day. Tough on the CNS."
+  },
+  {
+    "id": "E4",
+    "category": "resistance",
+    "name": "Upper Body (All Round)",
+    "focus": "Chest Press, Row, Shoulder Press, Pulldown, Arms",
+    "est_kcal": 320,
+    "duration_min": 60,
+    "notes": "Shorter rest periods (60-90s)."
+  },
+  {
+    "id": "E5",
+    "category": "resistance",
+    "name": "Lower Body (All Round)",
+    "focus": "Leg Press, Lunges, Glute Ham Raises, Calves",
+    "est_kcal": 350,
+    "duration_min": 60,
+    "notes": "Higher rep ranges (10-15) vs E3."
+  },
+  {
+    "id": "C1",
+    "category": "cardio",
+    "name": "Active Recovery / Zone 2",
+    "focus": "Brisk walking, light cycling, or stairmaster",
+    "est_kcal": 250,
+    "duration_min": 40,
+    "notes": "HR 110-130bpm. Boosts recovery."
+  },
+  {
+    "id": "R1",
+    "category": "rest",
+    "name": "Full Rest",
+    "focus": "Stretching, mobility work, or complete rest",
+    "est_kcal": 0,
+    "duration_min": 0,
+    "notes": "Crucial for CNS recovery and muscle growth."
+  }
+]
