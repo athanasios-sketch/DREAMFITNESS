@@ -67,9 +67,18 @@
         Math.abs(+a.meal.kcal - menuGap) - Math.abs(+b.meal.kcal - menuGap))[0];
     return best && Math.abs(+best.meal.kcal - menuGap) <= 150 ? best : null;
   });
-  /** Under budget: βρώμη is 3.79 kcal/g dry, which turns the gap into a number
-   *  you can put on a scale. Rounded to 5g because nobody weighs to the gram. */
-  const oatsGrams = $derived(menuGap < 0 ? Math.round(-menuGap / 3.79 / 5) * 5 : 0);
+  /** Under budget: turn the gap into something you can put on a scale. βρώμη is
+   *  3.79 kcal/g dry - and is 60g of carbohydrate per 100g, so on a plan capped
+   *  at 28g net it is the one food that cannot be the answer. Olive oil is
+   *  8.84 kcal/g and costs nothing against the cap, so keto tops up with that.
+   *  Rounded to 5g / 2g because nobody weighs to the gram. */
+  const topUp = $derived.by(() => {
+    if (menuGap >= 0) return null;
+    const keto = d?.profile?.diet_mode === 'keto';
+    return keto
+      ? { g: Math.round(-menuGap / 8.84 / 2) * 2, what: 'olive oil', extra: 'or a handful of walnuts' }
+      : { g: Math.round(-menuGap / 3.79 / 5) * 5, what: 'dry βρώμη', extra: 'or the honey and milks in the library' };
+  });
 
   // ---- supplements
   const suppOn = (id: number) =>
@@ -436,7 +445,7 @@
           {:else}
             The rotation is <span class="tnum">{n0(-menuGap)}</span> kcal short of what today costs you
             &mdash; this is the day to eat the difference, not bank it.
-            Add <span class="tnum">{oatsGrams}g</span> of dry βρώμη, or the honey and milks in the library.
+            Add <span class="tnum">{topUp?.g}g</span> of {topUp?.what}, {topUp?.extra}.
           {/if}
         </p>
       {/if}

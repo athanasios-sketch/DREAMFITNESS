@@ -22,12 +22,12 @@ else{
 // 2. profile
 const profile = {
   id: uid, email: EMAIL, sex:'male', birth_date:'2002-01-01', height_cm:180,
-  start_weight_kg:102.5, program_start_date:'2026-09-07', program_days:180,
+  start_weight_kg:102.5, program_start_date:'2026-09-04', program_days:180,
   timezone:'Europe/Athens',
   neat_factor:1.06, deficit_kcal:700,
   protein_target_g:190, protein_g_per_kg:2.10,
   diet_mode:'keto', carb_cap_g:28, fiber_target_g:28, veg_target_g:400,
-  steps_target:9000, water_target_l:3.5,
+  steps_target:9000, water_target_l:3.5, measure_weekday:6,   // Saturday
   eat_window_start:'16:00', eat_window_end:'00:00',
   set_seconds:40, rest_seconds:150, tdee_adjustment:1.000,
 };

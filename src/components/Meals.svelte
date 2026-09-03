@@ -3,7 +3,7 @@
   import { loadMeals } from '../lib/api';
 
   let meals  = $state<any[]>([]);
-  let filter = $state<'all' | 'regular' | 'fasting'>('all');
+  let filter = $state<string>('all');
   let open   = $state<number | null>(null);
 
   onMount(async () => { meals = await loadMeals(); });
@@ -14,6 +14,18 @@
    *  side you are allowed to add. */
   const shown = $derived(
     meals.filter((m) => filter === 'all' || m.day_type === filter || m.day_type === 'any'));
+
+  /** The tabs come from what is actually in the library, not from a hardcoded
+   *  pair. Thanos has regular + fasting; Ntinos has regular + travel and no
+   *  fasting day anywhere, so a "Fasting" tab on his plan would filter to
+   *  nothing and mean nothing. "Fed days" only reads as a label when there is a
+   *  fasting day to be fed in contrast TO - otherwise these are just the days. */
+  const types = $derived([...new Set(meals.map((m) => m.day_type))].filter((t) => t !== 'any'));
+  const LABEL: Record<string, string> = { fasting: 'Fasting', travel: 'Travel' };
+  const tabs = $derived<[string, string][]>([['all', 'All'],
+    ...types.map((t) => [t, t === 'regular'
+      ? (types.includes('fasting') ? 'Fed days' : 'Everyday')
+      : (LABEL[t] ?? t)] as [string, string])]);
 
   const grouped = $derived(
     ORDER.map((slot) => ({ slot, items: shown.filter((m) => m.slot === slot) }))
@@ -74,7 +86,7 @@
 <div class="sticky top-0 z-30 border-b border-line bg-ink/95 px-5 pb-3 backdrop-blur
             pt-[calc(env(safe-area-inset-top)+0.75rem)]">
   <div class="flex gap-2">
-    {#each [['all', 'All'], ['regular', 'Fed days'], ['fasting', 'Fasting']] as [key, label]}
+    {#each tabs as [key, label]}
       <button onclick={() => (filter = key as any)}
         class="rounded-full border px-3.5 py-1.5 text-xs font-medium transition
           {filter === key
@@ -94,14 +106,16 @@
         {#each g.items as m}
           {@const fasting = m.day_type === 'fasting'}
           {@const anyDay  = m.day_type === 'any'}
+          {@const travel  = m.day_type === 'travel'}
           {@const isOpen = open === m.id}
           {@const d = density(m)}
           <div class="panel overflow-hidden {isOpen ? 'border-muted/40' : ''}">
             <button onclick={() => toggle(m.id)}
               class="flex w-full items-start gap-3 p-4 text-left">
               <span class="mt-1 size-2 shrink-0 rounded-full
-                           {anyDay ? 'bg-muted' : fasting ? 'bg-fast' : 'bg-fed'}"
-                    title={anyDay ? 'Any day' : fasting ? 'Fasting day' : 'Fed day'}></span>
+                           {anyDay || travel ? 'bg-muted' : fasting ? 'bg-fast' : 'bg-fed'}"
+                    title={anyDay ? 'Any day' : travel ? 'Travel day'
+                           : fasting ? 'Fasting day' : 'Fed day'}></span>
               <span class="min-w-0 flex-1">
                 <span class="flex items-baseline justify-between gap-2">
                   <span class="truncate font-semibold">{m.name}</span>
