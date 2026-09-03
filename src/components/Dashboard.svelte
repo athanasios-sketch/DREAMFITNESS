@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { loadProgram, athensToday } from '../lib/api';
+  import { loadProgram, athensToday, navyBodyFatPct } from '../lib/api';
 
   let { signOut, onOpenToday } = $props<{ signOut: () => void; onOpenToday: () => void }>();
 
@@ -141,9 +141,29 @@
   });
 
   const waist = $derived.by(() => {
-    const xs = (p?.logs ?? []).filter((l: any) => l.waist_cm != null);
-    return xs.length ? { first: +xs[0].waist_cm, last: +xs.at(-1).waist_cm } : null;
+    const xs = (p?.logs ?? []).filter((l: any) => l.waist_cm != null).map((l: any) => +l.waist_cm);
+    return xs.length ? { first: xs[0], last: xs.at(-1)!, n: xs.length } : null;
   });
+
+  /** Waist and neck against height is a body-fat estimate, and it is the only
+   *  signal here that separates the two ways of losing a kilo. Its level is a
+   *  ballpark; its movement, same tape and same sites, is the honest part. */
+  const bodyFat = $derived.by(() => {
+    const xs = (p?.logs ?? [])
+      .map((l: any) => navyBodyFatPct({ sex: p?.profile?.sex, heightCm: p?.profile?.height_cm,
+                                        neckCm: l.neck_cm, waistCm: l.waist_cm }))
+      .filter((v: number | null) => v != null) as number[];
+    return xs.length ? { first: xs[0], last: xs.at(-1)!, n: xs.length } : null;
+  });
+
+  /** One reading is a baseline, not a trend - rendering it as "+0.0 cm" reads
+   *  like a week of nothing when it is day one. Show the level until there is
+   *  a second reading to subtract from. */
+  const move = (t: any, level: string, delta: string, digits = 1) =>
+    t == null ? '--'
+    : t.n < 2 ? `${f(t.last, digits)}${level}`
+    : `${t.last - t.first > 0 ? '+' : ''}${f(t.last - t.first, digits)}${delta}`;
+  const falling = (t: any) => t != null && t.n >= 2 && t.last < t.first;
 
   const volumeTrend = $derived.by(() => {
     const xs = scored.filter((s: any) => +s.volume_load > 0).map((s: any) => +s.volume_load);
@@ -294,7 +314,8 @@
       <div class="mt-4 space-y-3">
         {#each [
           ['Weight trend', weight?.perWeek == null ? '--' : `${weight.perWeek > 0 ? '+' : ''}${f(weight.perWeek, 2)} kg/wk`, weight?.perWeek != null && weight.perWeek < 0],
-          ['Waist', waist == null ? '--' : `${(waist.last - waist.first) > 0 ? '+' : ''}${f(waist.last - waist.first)} cm`, waist != null && waist.last < waist.first],
+          ['Waist', move(waist, ' cm', ' cm'), falling(waist)],
+          ['Body fat', move(bodyFat, '%', ' pp'), falling(bodyFat)],
           ['Volume load', volumeTrend == null ? '--' : `${volumeTrend > 0 ? '+' : ''}${f(volumeTrend, 0)}%`, volumeTrend != null && volumeTrend > 0],
           ['Avg protein', avgProtein == null ? '--' : `${f(avgProtein, 0)} g`, avgProtein != null && avgProtein >= 195],
         ] as [label, val, good]}

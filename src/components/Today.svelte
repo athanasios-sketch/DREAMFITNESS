@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { athensToday, shiftDate, loadDay, toggleMeal, swapMeal, setPortion,
            saveMetrics, addSet, addExtra, deleteRow, isoWeekday, WEEKDAYS,
-           sessionKcal, walkRunMet, toggleSupplement } from '../lib/api';
+           sessionKcal, walkRunMet, toggleSupplement, navyBodyFatPct } from '../lib/api';
 
   const TODAY = athensToday();
   let date = $state(TODAY);
@@ -89,10 +89,26 @@
    *  water and salt, and reading noise as progress is how people quit. */
   const measureDay = $derived(
     isoWeekday(date) === +(d?.profile?.measure_weekday ?? 3));
-  const hasMeasurement = $derived(!!d?.log && ['weight_kg','waist_cm','chest_cm','arms_cm']
+  const hasMeasurement = $derived(!!d?.log && ['weight_kg','waist_cm','chest_cm','arms_cm','neck_cm']
     .some((f) => d.log[f] != null));
   const measureOpen = $derived(showMeasure || measureDay || hasMeasurement);
   const nextMeasure = $derived(WEEKDAYS[(+(d?.profile?.measure_weekday ?? 3)) - 1]);
+
+  /** The tape only becomes composition once height is in the room. Waist-to-
+   *  height needs nothing else; body fat needs the neck too, which is why the
+   *  neck field is there at all. Both are computed, never stored - a corrected
+   *  height should move every past reading, not leave stale numbers behind. */
+  const composition = $derived.by(() => {
+    const log = d?.log;
+    if (!log) return null;
+    const h = Number(d?.profile?.height_cm ?? 0);
+    const pct = navyBodyFatPct({ sex: d?.profile?.sex, heightCm: h,
+                                 neckCm: log.neck_cm, waistCm: log.waist_cm });
+    const whtr = h > 0 && log.waist_cm != null ? +log.waist_cm / h : null;
+    if (pct == null && whtr == null) return null;
+    const kg = log.weight_kg == null ? null : +log.weight_kg;
+    return { pct, whtr, lean: pct != null && kg ? kg * (1 - pct / 100) : null };
+  });
 
   const cups  = $derived(Number(d?.log?.coffee_cups ?? 0));
   const limit = $derived(Number(d?.profile?.coffee_limit_cups ?? 4));
@@ -853,7 +869,8 @@
       {#if measureOpen}
         <div class="mt-4 grid grid-cols-2 gap-3">
           {#each [['weight_kg','Weight','kg'], ['waist_cm','Waist','cm'],
-                  ['chest_cm','Chest','cm'], ['arms_cm','Arms','cm']] as [f,label,unit]}
+                  ['chest_cm','Chest','cm'], ['arms_cm','Arms','cm'],
+                  ['neck_cm','Neck','cm']] as [f,label,unit]}
             <label class="block">
               <span class="eyebrow">{label} ({unit})</span>
               <input value={d.log?.[f as string] ?? ''} inputmode="decimal"
@@ -862,9 +879,32 @@
             </label>
           {/each}
         </div>
+        {#if composition}
+          <div class="mt-4 grid grid-cols-3 gap-3 border-t border-line pt-3">
+            {#each [
+              ['Body fat', composition.pct == null ? '--' : `${composition.pct.toFixed(1)}%`,
+               composition.pct != null && composition.pct < 20],
+              ['Lean mass', composition.lean == null ? '--' : `${composition.lean.toFixed(1)} kg`, false],
+              ['Waist : height', composition.whtr == null ? '--' : composition.whtr.toFixed(2),
+               composition.whtr != null && composition.whtr < 0.5],
+            ] as [label, val, good]}
+              <div>
+                <span class="eyebrow">{label}</span>
+                <p class="tnum mt-0.5 text-sm font-semibold
+                          {val === '--' ? 'text-muted/40' : good ? 'text-peak' : 'text-bone'}">{val}</p>
+              </div>
+            {/each}
+          </div>
+          <p class="mt-2 text-[11px] leading-relaxed text-muted">
+            Estimated from the tape, not scanned: the level is &plusmn;3-4 points, but the
+            week-to-week movement is real. Under 0.5 waist-to-height is the target.
+          </p>
+        {/if}
+
         <p class="mt-3 text-[11px] leading-relaxed text-muted">
           Same conditions every week or the number means nothing: same morning, after the
           toilet, before breakfast. Waist at the navel, relaxed, at the end of a normal breath.
+          Neck just below the larynx, tape level and not pulled tight.
         </p>
       {/if}
     </section>

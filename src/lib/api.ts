@@ -66,6 +66,39 @@ export function walkRunMet(kmh: number, inclinePct = 0): number {
   return Math.max(1, vo2 / 3.5);
 }
 
+/** US Navy circumference method, metric form. Neck comes out of the waist
+ *  because a thick neck is not a thick gut, and height sets the scale: the same
+ *  waist means something different on 170cm and on 190cm.
+ *
+ *  Worth being straight about the error bars - this is +/-3-4 percentage points
+ *  against a DEXA scan, so the ABSOLUTE number is a ballpark. The CHANGE, taken
+ *  with the same tape at the same sites, is much tighter than that, and the
+ *  change is what a 90-day block is actually judged on.
+ *
+ *  Returns null rather than a wrong number when the inputs cannot support an
+ *  estimate - the female equation needs a hip measurement, which day_logs does
+ *  not carry yet. */
+export function navyBodyFatPct(o: {
+  sex?: string | null; heightCm?: any; neckCm?: any; waistCm?: any; hipCm?: any;
+}): number | null {
+  const num = (v: any) => (v === null || v === undefined || v === '' || !Number.isFinite(+v) ? 0 : +v);
+  const h = num(o.heightCm), neck = num(o.neckCm), waist = num(o.waistCm), hip = num(o.hipCm);
+  if (h <= 0 || neck <= 0 || waist <= 0) return null;
+
+  const female = o.sex === 'female';
+  if (female && hip <= 0) return null;
+  const girth = female ? waist + hip - neck : waist - neck;
+  if (girth <= 0) return null;
+
+  const log10 = (x: number) => Math.log(x) / Math.LN10;
+  const density = female
+    ? 1.29579 - 0.35004 * log10(girth) + 0.22100 * log10(h)
+    : 1.03240 - 0.19077 * log10(girth) + 0.15456 * log10(h);
+  const pct = 495 / density - 450;
+  // outside this band the tape was misread, not the body measured
+  return pct > 2 && pct < 70 ? pct : null;
+}
+
 /** The energy model, mirrored from public.session_kcal so the editor can show a
  *  live number without a round trip. Both sides must agree - if you change one,
  *  change the other. */
@@ -239,7 +272,7 @@ export async function loadProgram() {
       .order('day_no'),
     supabase.from('daily_scores').select('*').order('score_date'),
     supabase.from('day_logs')
-      .select('log_date, weight_kg, waist_cm, chest_cm, arms_cm, steps, coffee_cups, water_l')
+      .select('log_date, weight_kg, waist_cm, chest_cm, arms_cm, neck_cm, steps, coffee_cups, water_l')
       .order('log_date'),
     supabase.from('profiles').select('*').maybeSingle(),
     loadSupplements(),
