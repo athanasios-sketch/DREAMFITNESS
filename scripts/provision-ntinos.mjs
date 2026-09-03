@@ -40,23 +40,41 @@ const { data:tpl, error:te } = await db.from('program_templates')
   .insert({user_id:uid, name:'Keto 16:00-00:00, four heavy days', active:true}).select().single();
 if(te) throw te;
 
-const W=[['K-M1a','K-M2a','K-M3a'],['K-M1a','K-M2a','K-M3c'],['K-M1b','K-M2b','K-M3b'],
-         ['K-M1b','K-M2b','K-M3c'],['K-M1c','K-M2c','K-M3a'],['K-M1c','K-M2c','K-M3b'],
-         ['K-M1d','K-M2d','K-M3c']];
 const EX=['KUA','KLA','REST','KUB','KLB','REST','REST'];   // Mon..Sun
+
 // A rest day burns ~350 kcal less and is budgeted ~320 kcal lower, so it eats
-// the leaner rotation. Same 190 g of protein, ~35 g less fat - see migration
-// 20260903150000. Without this the rest-day menu overshoots its own target.
+// the leaner rotation: same 190 g of protein, ~35 g less fat. See migration
+// 20260903150000 - without this the rest-day menu overshoots its own target by
+// 322 kcal, three days a week.
 const REST=['K-R1','K-R2','K-R3'];
-const menu=(d)=> EX[d]==='REST' ? REST : W[d];
+
+// Only FOUR days a week eat the training rotation, and two variants makes eight
+// menu slots. Assigning them by weekday and rotating the offset left two meals
+// (the beef mince and the sardines) landing only on rest days, where they are
+// replaced - so they would never once have been cooked. These eight are chosen
+// to cover all eleven, no meal more than three times, every day inside
+// 2338-2366 kcal, 189-193 g protein and 28 g net carbohydrate.
+const TRAIN=[
+  ['K-M1a','K-M2a','K-M3a'],   // Mon A
+  ['K-M1a','K-M2a','K-M3c'],   // Tue A
+  ['K-M1a','K-M2b','K-M3c'],   // Thu A
+  ['K-M1b','K-M2a','K-M3a'],   // Fri A
+  ['K-M1b','K-M2b','K-M3b'],   // Mon B
+  ['K-M1b','K-M2c','K-M3a'],   // Tue B
+  ['K-M1c','K-M2b','K-M3b'],   // Thu B
+  ['K-M1d','K-M2d','K-M3c'],   // Fri B
+];
+const TRAIN_DOW=[1,2,4,5];                       // Mon, Tue, Thu, Fri
+const menuFor=(dow, variant) => {
+  const i = TRAIN_DOW.indexOf(dow);
+  return i < 0 ? REST : TRAIN[i + variant*4];
+};
 const rows=[];
 for(let d=0; d<7; d++){
-  rows.push({template_id:tpl.id, dow:d+1, variant:0, day_type:'regular',
-             exercise_code:EX[d], meal_codes:menu(d)});
-  // variant 1 shifts the training-day menu four days on, so consecutive weeks
-  // never repeat. Rest days have only one menu and stay put.
-  rows.push({template_id:tpl.id, dow:d+1, variant:1, day_type:'regular',
-             exercise_code:EX[d], meal_codes: EX[d]==='REST' ? REST : W[(d+4)%7]});
+  for(const variant of [0,1]){
+    rows.push({template_id:tpl.id, dow:d+1, variant, day_type:'regular',
+               exercise_code:EX[d], meal_codes:menuFor(d+1, variant)});
+  }
 }
 { const {error}=await db.from('program_template_days').insert(rows); if(error) throw error; }
 console.log('template written:',rows.length,'rows');
