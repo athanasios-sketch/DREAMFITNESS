@@ -281,10 +281,25 @@
   let xOpen = $state(false), xKind = $state<'food'|'exercise'>('food');
   let x = $state({ ...BLANK });
 
-  const num = (v: any) => (v === '' || v == null ? null : Number(v));
+  /** Number('10,4') is NaN, not null - so `?? 0` never catches it, NaN
+   *  serialises to null, and the row dies on
+   *  `check (protein_g is not null and kcal is not null)`. A Greek keyboard
+   *  produces a decimal COMMA by default, so a single comma anywhere in this
+   *  form silently rejected the whole entry. Pasted labels bring units along
+   *  too ("112 mg", "24.8g"), which Number() also reads as NaN. */
+  const num = (v: any) => {
+    if (v === '' || v == null) return null;
+    const cleaned = String(v).trim().replace(',', '.').replace(/[^\d.\-]/g, '');
+    // Number('') is 0, so text with no digits in it must be rejected here or it
+    // logs a confident zero instead of admitting it did not understand.
+    if (!/\d/.test(cleaned)) return null;
+    const n = Number(cleaned);
+    return Number.isFinite(n) ? n : null;
+  };
 
+  let xErr = $state('');
   async function saveExtra() {
-    if (!x.name.trim() || busy) return; busy = true;
+    if (!x.name.trim() || busy) return; busy = true; xErr = '';
     try {
       await addExtra(date, xKind === 'food'
         ? { kind: 'food', name: x.name.trim(), amount: x.amount || null,
@@ -295,6 +310,10 @@
         : { kind: 'exercise', name: x.name.trim(), amount: x.amount || null,
             duration_min: num(x.minutes), kcal_burned: num(x.kcal_burned) ?? 0 });
       x = { ...BLANK }; xOpen = false; await load();
+    } catch (e: any) {
+      // It used to throw into nowhere: the row was refused, the form sat there,
+      // and the only symptom was that pressing Save did nothing at all.
+      xErr = e?.message ?? 'Could not save that.';
     } finally { busy = false; }
   }
 
@@ -1098,6 +1117,11 @@
                   class="tnum mt-1 w-full rounded-lg border border-line bg-ink px-2 py-2 text-sm" />
               </label>
             </div>
+          {/if}
+
+          {#if xErr}
+            <p class="rounded-lg border-l-2 border-warn bg-warn/5 py-2.5 pl-3 pr-3
+                      text-[11px] leading-relaxed text-warn">{xErr}</p>
           {/if}
 
           <button onclick={saveExtra} disabled={busy || !x.name.trim()}
