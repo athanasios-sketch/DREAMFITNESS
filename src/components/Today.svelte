@@ -94,22 +94,6 @@
   const measureOpen = $derived(showMeasure || measureDay || hasMeasurement);
   const nextMeasure = $derived(WEEKDAYS[(+(d?.profile?.measure_weekday ?? 3)) - 1]);
 
-  /** The tape only becomes composition once height is in the room. Waist-to-
-   *  height needs nothing else; body fat needs the neck too, which is why the
-   *  neck field is there at all. Both are computed, never stored - a corrected
-   *  height should move every past reading, not leave stale numbers behind. */
-  const composition = $derived.by(() => {
-    const log = d?.log;
-    if (!log) return null;
-    const h = Number(d?.profile?.height_cm ?? 0);
-    const pct = navyBodyFatPct({ sex: d?.profile?.sex, heightCm: h,
-                                 neckCm: log.neck_cm, waistCm: log.waist_cm });
-    const whtr = h > 0 && log.waist_cm != null ? +log.waist_cm / h : null;
-    if (pct == null && whtr == null) return null;
-    const kg = log.weight_kg == null ? null : +log.weight_kg;
-    return { pct, whtr, lean: pct != null && kg ? kg * (1 - pct / 100) : null };
-  });
-
   const cups  = $derived(Number(d?.log?.coffee_cups ?? 0));
   const limit = $derived(Number(d?.profile?.coffee_limit_cups ?? 4));
 
@@ -123,6 +107,28 @@
 
   const bodyKg = $derived(
     Number(d?.score?.detail?.bodyweight_kg ?? d?.profile?.start_weight_kg ?? 88));
+
+  /** The tape only becomes composition once height is in the room. Waist-to-
+   *  height needs nothing else; body fat needs the neck too, which is why the
+   *  neck field is there at all. Both are computed, never stored - a corrected
+   *  height should move every past reading, not leave stale numbers behind.
+   *
+   *  Lean mass is taken from bodyKg, NOT from this row's weight_kg. You do not
+   *  always step on the scale the same morning you reach for the tape, and the
+   *  scoring functions already carry the last known weight forward rather than
+   *  treating a blank as a blank. Reading the row directly made lean mass
+   *  disappear on exactly the days you measured everything else.
+   */
+  const composition = $derived.by(() => {
+    const log = d?.log;
+    if (!log) return null;
+    const h = Number(d?.profile?.height_cm ?? 0);
+    const pct = navyBodyFatPct({ sex: d?.profile?.sex, heightCm: h,
+                                 neckCm: log.neck_cm, waistCm: log.waist_cm });
+    const whtr = h > 0 && log.waist_cm != null ? +log.waist_cm / h : null;
+    if (pct == null && whtr == null) return null;
+    return { pct, whtr, lean: pct != null && bodyKg ? bodyKg * (1 - pct / 100) : null };
+  });
 
   /** Timed movements - the treadmill, a plank, a farmer hold - run continuously.
    *  Costing them at the session's rest-heavy duty cycle would understate them
