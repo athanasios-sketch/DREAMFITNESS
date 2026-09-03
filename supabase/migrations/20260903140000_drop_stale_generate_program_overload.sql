@@ -1,0 +1,12 @@
+-- `create or replace function` replaces a function with the SAME signature. The
+-- generator gained a p_days argument in 20260903100000, so the one-argument
+-- version was not replaced - it was left sitting beside the new one, and PostgREST
+-- refuses to choose between two candidates that both accept a single date:
+--
+--   PGRST203: Could not choose the best candidate function between
+--             generate_program(p_start => date),
+--             generate_program(p_start => date, p_days => integer)
+--
+-- Dropping the old one. Nothing calls it: the app calls generate_program() with
+-- no arguments, which was ambiguous for exactly the same reason.
+drop function if exists public.generate_program(date);

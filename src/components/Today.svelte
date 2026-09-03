@@ -2,7 +2,8 @@
   import { onMount } from 'svelte';
   import { athensToday, shiftDate, loadDay, toggleMeal, swapMeal, setPortion,
            saveMetrics, addSet, addExtra, deleteRow, isoWeekday, WEEKDAYS,
-           sessionKcal, walkRunMet, toggleSupplement, navyBodyFatPct } from '../lib/api';
+           sessionKcal, walkRunMet, toggleSupplement, navyBodyFatPct,
+           setTravelDay } from '../lib/api';
 
   const TODAY = athensToday();
   let date = $state(TODAY);
@@ -73,10 +74,14 @@
   // ---- supplements
   const suppOn = (id: number) =>
     !!(d?.suppLogs ?? []).find((l: any) => l.supplement_id === id && l.taken);
-  /** The coffee-and-iron rule only bites on fasting days, when every milligram
-   *  of iron on the plate is non-heme. It is not a miss on a fed day. */
-  const suppDue = $derived((d?.supplements ?? []).filter(
-    (s: any) => s.kind !== 'habit' || d?.programDay?.day_type === 'fasting'));
+  /** Scope comes off the row now, not off the day type. This used to read
+   *  `kind !== 'habit' || day_type === 'fasting'`, which was right when the only
+   *  habit was the coffee-and-iron rule and wrong the moment a second person
+   *  existed: on a plan with no fasting days it hid every habit permanently,
+   *  electrolytes included, which is the one a keto cut cannot do without. */
+  const suppDue = $derived((d?.supplements ?? []).filter((s: any) =>
+    (!s.diet_modes || s.diet_modes.includes(d?.profile?.diet_mode ?? 'balanced')) &&
+    (!s.day_types  || s.day_types.includes(d?.programDay?.day_type))));
   const suppDone = $derived(suppDue.filter((s: any) => suppOn(s.id)).length);
 
   async function flipSupp(sup: any) {
@@ -207,6 +212,15 @@
     clearTimeout(timers[field]);
     timers[field] = setTimeout(async () => { await saveMetrics(date, { [field]: value }); await load(); }, delay);
   }
+  /** Travel lands on a different day every week, so it is applied rather than
+   *  scheduled: the menu swaps to the supermarket rotation and that day's
+   *  targets are re-derived. */
+  async function flipTravel(next: boolean) {
+    if (busy) return; busy = true;
+    try { await setTravelDay(date, next); await load(); }
+    finally { busy = false; }
+  }
+
   async function bump(field: string, by: number, max = 99) {
     const next = Math.max(0, Math.min(max, +(Number(d.log?.[field] ?? 0) + by).toFixed(2)));
     await saveMetrics(date, { [field]: next }); await load();
@@ -316,6 +330,8 @@
 {:else}
   {@const pd = d.programDay}
   {@const fasting = pd.day_type === 'fasting'}
+  {@const travel  = pd.day_type === 'travel'}
+  {@const keto    = d.profile?.diet_mode === 'keto'}
   {@const isRest = pd.exercise?.category === 'rest'}
   {@const sc = d.score}
 
@@ -325,9 +341,15 @@
       <div class="flex items-start justify-between">
         <div>
           <span class="rounded-full border px-2.5 py-1 font-data text-[11px] uppercase tracking-widest
-                       {fasting ? 'border-fast/40 text-fast' : 'border-fed/40 text-fed'}">
-            {fasting ? 'Fasting' : 'Fed'}
+                       {travel ? 'border-muted/50 text-muted'
+                        : fasting ? 'border-fast/40 text-fast' : 'border-fed/40 text-fed'}">
+            {travel ? 'Travel' : fasting ? 'Fasting' : keto ? 'Keto' : 'Fed'}
           </span>
+          {#if keto && d.profile?.eat_window_start}
+            <span class="ml-2 font-data text-[11px] uppercase tracking-widest text-muted">
+              {String(d.profile.eat_window_start).slice(0,5)}&ndash;{String(d.profile.eat_window_end).slice(0,5)}
+            </span>
+          {/if}
           <p class="mt-3 font-display text-2xl font-bold">{pd.exercise?.name ?? 'Rest'}</p>
           <p class="text-sm text-muted">{pd.exercise?.focus ?? 'Recovery'}</p>
         </div>
@@ -420,9 +442,15 @@
       {/if}
 
       <div class="mt-4 space-y-3">
+        <!-- On keto the honest carbohydrate row is NET against the cap. Total
+             carbs against a target that already contains the day's fibre reads
+             as compliance when it is nothing of the sort - and the cap is what
+             the score is actually measured on. -->
         {#each [['Protein', eaten.p, +pd.protein_target_g, 'g', true],
                 ['Calories', eaten.k, pd.kcal_target, '', false],
-                ['Carbs', eaten.c, +pd.carbs_target_g, 'g', false],
+                keto ? ['Net carbs', Math.max(0, eaten.c - eaten.fib),
+                        +(d.profile?.carb_cap_g ?? 28), 'g', true]
+                     : ['Carbs', eaten.c, +pd.carbs_target_g, 'g', false],
                 ['Fat', eaten.f, +pd.fat_target_g, 'g', false],
                 ['Fibre', eaten.fib, +(d.profile?.fiber_target_g ?? 35), 'g', false],
                 ['Vegetables', eaten.veg, +(d.profile?.veg_target_g ?? 400), 'g', false]]
@@ -448,6 +476,20 @@
           fed one &mdash; chickpeas, edamame, lentils and oats carry it in with the protein, and there
           is no way to buy one without the other. If it sits badly, halve the chickpeas and the
           lentils for a fortnight and build back up.
+        </p>
+      {:else if keto && isRest}
+        <p class="mt-4 border-t border-line pt-3 text-[11px] leading-relaxed text-muted">
+          A rest day is budgeted <span class="text-bone">~320 kcal lower</span> and the menu is built
+          to match it. Protein does not move &mdash; it is defending the same muscle on less energy,
+          which is exactly when it counts. What comes out is fat: leaner cuts, and the olive oil
+          measured rather than poured.
+        </p>
+      {:else if keto}
+        <p class="mt-4 border-t border-line pt-3 text-[11px] leading-relaxed text-muted">
+          Net carbs, not total &mdash; fibre is not absorbed and does not move ketones. The
+          <span class="text-bone">{d.profile?.carb_cap_g ?? 28} g</span> line is a daily ceiling, but
+          it is the weekly average that matters: a 27 g day paid for by a 17 g one is the same
+          ketosis. Salt everything far past what feels right.
         </p>
       {/if}
     </section>
@@ -851,6 +893,50 @@
     <!-- measurements: weekly. A daily scale reading is mostly water and salt,
          and treating that noise as progress is how people talk themselves out
          of a plan that is working. -->
+    {#if keto}
+      <!-- Ketones are logged but deliberately NOT scored. Nutritional ketosis is
+           0.5-3.0 and higher is not better: a reading above the band usually
+           means protein came in low, which is the one mistake this plan exists
+           to prevent. Paying him for a bigger number would buy the wrong thing. -->
+      <section class="panel p-5">
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <p class="eyebrow">Ketones &amp; travel</p>
+            <p class="mt-1 text-xs text-muted">Twice a week, morning, before the session.</p>
+          </div>
+          <button onclick={() => flipTravel(!travel)} disabled={busy}
+            class="shrink-0 rounded-lg border px-3 py-1.5 text-xs
+                   {travel ? 'border-muted/50 text-muted' : 'border-line text-bone'}">
+            {travel ? 'On the road' : 'Away today?'}
+          </button>
+        </div>
+
+        <div class="mt-4 flex items-end gap-4">
+          <label class="block w-32">
+            <span class="eyebrow">Blood BHB (mmol/L)</span>
+            <input value={d.log?.ketones_mmol ?? ''} inputmode="decimal"
+              oninput={(e) => metric('ketones_mmol', (e.currentTarget as HTMLInputElement).value)}
+              class="tnum mt-1 w-full rounded-lg border border-line bg-ink px-3 py-2.5 text-bone" />
+          </label>
+          {#if d.log?.ketones_mmol != null}
+            {@const k = +d.log.ketones_mmol}
+            <p class="pb-2.5 text-sm {k >= 0.5 && k <= 3 ? 'text-peak' : 'text-muted'}">
+              {k < 0.5 ? 'Below nutritional ketosis — check yesterday’s net carbs.'
+               : k <= 3 ? 'In nutritional ketosis. Anywhere in this band is the same answer.'
+               : 'Higher than needed. Usually means protein ran low, not that it is working better.'}
+            </p>
+          {/if}
+        </div>
+
+        <p class="mt-3 border-t border-line pt-3 text-[11px] leading-relaxed text-muted">
+          Blood, not urine &mdash; strips read what you are <em>wasting</em>, so they fade to nothing
+          after a few weeks precisely as fat-adaptation improves. Never test straight after lifting:
+          gluconeogenesis and lactate both push BHB down, so your best session will produce the
+          week&rsquo;s lowest number. The tape outranks the meter.
+        </p>
+      </section>
+    {/if}
+
     <section class="panel p-5 {measureDay && !hasMeasurement ? 'border-fast/40' : ''}">
       <div class="flex items-center justify-between">
         <div>

@@ -12,6 +12,7 @@ const env = (k: string): string | undefined =>
 // Adding a second person is one line.
 const PEOPLE: Record<string, { email: string; secret: string }> = {
   thanos: { email: 'thanos@dreamfitness.local', secret: 'THANOS_PASSWORD' },
+  ntinos: { email: 'ntinos@dreamfitness.local', secret: 'NTINOS_PASSWORD' },
 };
 
 export const POST: APIRoute = async ({ request }) => {

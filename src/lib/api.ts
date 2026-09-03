@@ -219,6 +219,22 @@ export async function planTargets(from?: string) {
   return data as number;
 }
 
+/** Travel is once a week and never on a predictable weekday, so it cannot live
+ *  in the template - it is applied to whichever day it lands on. Swaps the
+ *  day's menu for the supermarket rotation and re-derives that day's targets. */
+export async function setTravelDay(date: string, travel: boolean) {
+  const { error } = await supabase.rpc('set_travel_day', { p_date: date, p_travel: travel });
+  if (error) throw error;
+}
+
+/** The measured correction on predicted expenditure. Safe to call whenever -
+ *  it refuses itself, and records why, when the record is too thin to trust. */
+export async function reconcileTdee() {
+  const { data, error } = await supabase.rpc('reconcile_tdee', {});
+  if (error) throw error;
+  return data as number;
+}
+
 export async function saveMetrics(date: string, fields: Record<string, any>) {
   const log = await ensureDayLog(date);
   const clean = Object.fromEntries(
