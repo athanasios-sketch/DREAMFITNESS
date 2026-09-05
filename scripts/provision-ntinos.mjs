@@ -22,7 +22,7 @@ else{
 // 2. profile
 const profile = {
   id: uid, email: EMAIL, sex:'male', birth_date:'2002-01-01', height_cm:180,
-  start_weight_kg:102.5, program_start_date:'2026-09-04', program_days:180,
+  start_weight_kg:102.5, program_start_date:'2026-09-07', program_days:180,
   timezone:'Europe/Athens',
   neat_factor:1.06, deficit_kcal:700,
   protein_target_g:190, protein_g_per_kg:2.10,
@@ -30,6 +30,10 @@ const profile = {
   steps_target:9000, water_target_l:3.5, measure_weekday:6,   // Saturday
   eat_window_start:'16:00', eat_window_end:'00:00',
   set_seconds:40, rest_seconds:150, tdee_adjustment:1.000,
+  // Away Monday to Friday. The generator reads this and lays those days out as
+  // travel days; set_travel_days() overrides individual dates for the weeks
+  // that differ, so a different week is a few taps rather than a regeneration.
+  travel_weekdays:[1,2,3,4,5],
 };
 { const {error}=await db.from('profiles').upsert(profile,{onConflict:'id'}); if(error) throw error; }
 console.log('profile upserted');
@@ -37,43 +41,36 @@ console.log('profile upserted');
 // 3. template
 await db.from('program_templates').delete().eq('user_id',uid);
 const { data:tpl, error:te } = await db.from('program_templates')
-  .insert({user_id:uid, name:'Keto 16:00-00:00, four heavy days', active:true}).select().single();
+  .insert({user_id:uid, name:'Away Mon-Fri, two full-body days at the weekend', active:true})
+  .select().single();
 if(te) throw te;
 
-const EX=['KUA','KLA','REST','KUB','KLB','REST','REST'];   // Mon..Sun
-
-// A rest day burns ~350 kcal less and is budgeted ~320 kcal lower, so it eats
-// the leaner rotation: same 190 g of protein, ~35 g less fat. See migration
-// 20260903150000 - without this the rest-day menu overshoots its own target by
-// 322 kcal, three days a week.
+// He is away Monday to Friday with no barbell and only walking, so those five
+// days are rest days - and the whole lifting budget is Saturday and Sunday.
+// Two CONSECUTIVE days is what makes this full body twice rather than an
+// upper/lower split: split over Sat+Sun, chest would be trained once a
+// fortnight, which is how a 700 kcal deficit takes muscle with it. Saturday is
+// squat-and-press, Sunday is hinge-and-pull, so the second day is not
+// repeating the first one's patterns under the first one's fatigue.
+//
+// Mon-Fri still need a menu for the weeks he does not travel: the leaner
+// rest-day rotation (migration 20260903150000), which is ~320 kcal below a
+// training day because a rest day is.
 const REST=['K-R1','K-R2','K-R3'];
 
-// Only FOUR days a week eat the training rotation, and two variants makes eight
-// menu slots. Assigning them by weekday and rotating the offset left two meals
-// (the beef mince and the sardines) landing only on rest days, where they are
-// replaced - so they would never once have been cooked. These eight are chosen
-// to cover all eleven, no meal more than three times, every day inside
-// 2338-2366 kcal, 189-193 g protein and 28 g net carbohydrate.
-const TRAIN=[
-  ['K-M1a','K-M2a','K-M3a'],   // Mon A
-  ['K-M1a','K-M2a','K-M3c'],   // Tue A
-  ['K-M1a','K-M2b','K-M3c'],   // Thu A
-  ['K-M1b','K-M2a','K-M3a'],   // Fri A
-  ['K-M1b','K-M2b','K-M3b'],   // Mon B
-  ['K-M1b','K-M2c','K-M3a'],   // Tue B
-  ['K-M1c','K-M2b','K-M3b'],   // Thu B
-  ['K-M1d','K-M2d','K-M3c'],   // Fri B
-];
-const TRAIN_DOW=[1,2,4,5];                       // Mon, Tue, Thu, Fri
-const menuFor=(dow, variant) => {
-  const i = TRAIN_DOW.indexOf(dow);
-  return i < 0 ? REST : TRAIN[i + variant*4];
+// Four weekend slots across a fortnight, chosen so that all eleven plates of
+// the home rotation get cooked rather than the same three every Saturday.
+const WEEKEND={
+  6:[['KFA',['K-M1a','K-M2a','K-M3a']],['KFA',['K-M1b','K-M2c','K-M3a']]],
+  7:[['KFB',['K-M1c','K-M2b','K-M3b']],['KFB',['K-M1d','K-M2d','K-M3c']]],
 };
+
 const rows=[];
-for(let d=0; d<7; d++){
+for(let dow=1; dow<=7; dow++){
   for(const variant of [0,1]){
-    rows.push({template_id:tpl.id, dow:d+1, variant, day_type:'regular',
-               exercise_code:EX[d], meal_codes:menuFor(d+1, variant)});
+    const [ex, meals] = WEEKEND[dow]?.[variant] ?? ['REST', REST];
+    rows.push({template_id:tpl.id, dow, variant, day_type:'regular',
+               exercise_code:ex, meal_codes:meals});
   }
 }
 { const {error}=await db.from('program_template_days').insert(rows); if(error) throw error; }

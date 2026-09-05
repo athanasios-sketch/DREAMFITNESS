@@ -14,7 +14,7 @@
   let newName = $state('');
 
   const load = async () => {
-    try { g = await loadGym(); err = ''; }
+    try { g = await loadGym(); err = ''; drafts = {}; }
     catch (e: any) { err = e?.message ?? 'Could not load your program.'; }
   };
   onMount(load);
@@ -77,23 +77,126 @@
   }
 
   let timers: Record<string, any> = {};
+
+  /** Which fields change what a session COSTS. A rescore walks every day you
+   *  have ever logged and re-prices it, so it belongs behind an edit to the
+   *  energy model - not behind every keystroke of a session's NAME. */
+  const ENERGY_FIELDS = new Set(['category', 'duration_min', 'work_met',
+                                 'recovery_met', 'epoc_factor', 'duty_pct', 'kcal_override']);
+
   function patchEx(id: number, field: string, value: any, delay = 500) {
     const ex = g.library.find((e: any) => e.id === id);
     if (ex) ex[field] = value === '' ? null : value;      // optimistic, keeps typing smooth
     clearTimeout(timers['e' + id + field]);
     timers['e' + id + field] = setTimeout(async () => {
-      try { await updateExercise(id, { [field]: value }); await rescoreAll(); }
+      try {
+        await updateExercise(id, { [field]: value });
+        if (ENERGY_FIELDS.has(field)) await rescoreAll();
+      }
       catch (x: any) { err = x?.message ?? 'Could not save.'; await load(); }
     }, delay);
   }
 
-  function patchMv(exId: number, mv: any, field: string, value: any, delay = 500) {
-    mv[field] = value === '' ? null : value;
+  // ─────────────────────────────────────────────────────── movement numbers
+  /** Reps are typed one digit at a time, and the halfway house is usually
+   *  invalid: taking 8-12 down to 8-10 goes through rep_high = 1, which the
+   *  database refuses outright (`check (rep_high >= rep_low)`). Sets and MET
+   *  have the same shape - `target_sets > 0`, `met between 1 and 20` - so a
+   *  field on its way to a smaller number is briefly illegal in all three.
+   *
+   *  Every keystroke used to be sent anyway; the refusal was caught, the whole
+   *  screen reloaded, and the reload put the ORIGINAL number back. The field
+   *  fought you the moment you tried to lower anything, which is exactly what
+   *  "it sticks" looks like from the outside.
+   *
+   *  So the text you are typing lives HERE, untouched, until it makes sense as
+   *  a row. Nothing is sent while it does not, and nothing is ever reloaded
+   *  over a field you are still in. */
+  let drafts = $state<Record<string, string>>({});
+  const dkey  = (mv: any, f: string) => mv.id + ':' + f;
+  const draft = (mv: any, f: string) =>
+    drafts[dkey(mv, f)] ?? (mv[f] == null ? '' : String(mv[f]));
+
+  /** null = cleared on purpose, undefined = not a number yet ('', '-', '1.'). */
+  const parseNum = (raw: string, int: boolean) => {
+    const t = raw.trim().replace(',', '.');
+    if (t === '') return null;
+    const n = int ? parseInt(t, 10) : parseFloat(t);
+    if (!Number.isFinite(n) || !/^\d/.test(t)) return undefined;
+    return n;
+  };
+
+  /** True when this value can be stored right now - the column's own check,
+   *  plus the pair rule that rep_high can never sit below rep_low. */
+  function storable(mv: any, field: string, v: number | null): boolean {
+    if (v === null) return true;                       // clearing is always legal
+    if (field === 'met') return v >= 1 && v <= 20;
+    if (v < 1) return false;                           // sets and reps start at 1
+    if (field === 'rep_low'  && mv.rep_high != null && v > +mv.rep_high) return false;
+    if (field === 'rep_high' && mv.rep_low  != null && v < +mv.rep_low)  return false;
+    return true;
+  }
+
+  const isInt = (f: string) => f !== 'met';
+
+  function editMv(exId: number, mv: any, field: string, raw: string, delay = 600) {
+    drafts[dkey(mv, field)] = raw;
     clearTimeout(timers['m' + mv.id + field]);
-    timers['m' + mv.id + field] = setTimeout(async () => {
-      try { await saveMovement(exId, { ...$state.snapshot(mv), [field]: value === '' ? null : value }); }
-      catch (x: any) { err = x?.message ?? 'Could not save.'; await load(); }
+    timers['m' + mv.id + field] = setTimeout(() => {
+      const v = parseNum(raw, isInt(field));
+      if (v === undefined || !storable(mv, field, v)) return;   // still mid-thought
+      writeMv(exId, mv, { [field]: v }, [field]);
     }, delay);
+  }
+
+  /** Leaving the field is where a half-finished number has to become a real
+   *  one. Nonsense and zero clear it; an upside-down pair is read the way it
+   *  was plainly meant - dropping the top of 8-12 to 6 means 6-6, not an
+   *  error message. */
+  function blurMv(exId: number, mv: any, field: string) {
+    const raw = drafts[dkey(mv, field)];
+    if (raw === undefined) return;
+    clearTimeout(timers['m' + mv.id + field]);
+    const parsed = parseNum(raw, isInt(field));
+    let v: number | null = parsed === undefined ? null : parsed;
+    if (v !== null && field === 'met') v = Math.min(20, Math.max(1, v));
+    if (v !== null && field !== 'met' && v < 1) v = null;
+
+    const patch: Record<string, any> = { [field]: v };
+    if (v != null && field === 'rep_low'  && mv.rep_high != null && v > +mv.rep_high) patch.rep_high = v;
+    if (v != null && field === 'rep_high' && mv.rep_low  != null && v < +mv.rep_low)  patch.rep_low  = v;
+    writeMv(exId, mv, patch, Object.keys(patch));
+  }
+
+  /** Fields with nothing to get wrong - a name, a tracking mode. Written
+   *  optimistically so typing stays smooth, and rolled back if refused. */
+  function patchMv(exId: number, mv: any, field: string, value: any, delay = 500) {
+    const before = mv[field];
+    mv[field] = value === '' ? null : value;
+    const key = 'm' + mv.id + field;
+    clearTimeout(timers[key]);
+    const run = async () => {
+      try { await saveMovement(exId, { ...$state.snapshot(mv) }); err = ''; }
+      catch (x: any) { mv[field] = before; err = x?.message ?? 'Could not save.'; }
+    };
+    if (delay <= 0) run(); else timers[key] = setTimeout(run, delay);
+  }
+
+  /** One writer. Optimistic, and on refusal it puts back what was there before
+   *  rather than reloading the screen out from under whatever else you are
+   *  typing. */
+  async function writeMv(exId: number, mv: any, patch: Record<string, any>, clear: string[]) {
+    const before: Record<string, any> = {};
+    for (const f of Object.keys(patch)) before[f] = mv[f];
+    Object.assign(mv, patch);
+    try {
+      await saveMovement(exId, { ...$state.snapshot(mv) });
+      for (const f of clear) delete drafts[dkey(mv, f)];
+      err = '';
+    } catch (x: any) {
+      Object.assign(mv, before);
+      err = x?.message ?? 'Could not save.';
+    }
   }
 
   async function addMovement(e: any) {
@@ -464,31 +567,35 @@
                         <div class="mt-2 flex items-center gap-2">
                           <label class="flex items-center gap-1.5">
                             <span class="eyebrow text-[9px]">sets</span>
-                            <input value={mv.target_sets ?? ''} inputmode="numeric"
-                              oninput={(ev) => patchMv(e.id, mv, 'target_sets',
+                            <input value={draft(mv, 'target_sets')} inputmode="numeric"
+                              oninput={(ev) => editMv(e.id, mv, 'target_sets',
                                          (ev.currentTarget as HTMLInputElement).value)}
+                              onblur={() => blurMv(e.id, mv, 'target_sets')}
                               class="tnum w-12 rounded-md border border-line bg-ink px-2 py-1.5 text-sm" />
                           </label>
                           {#if mv.tracking === 'time'}
                             <label class="flex items-center gap-1.5">
                               <span class="eyebrow text-[9px]">met</span>
-                              <input value={mv.met ?? ''} inputmode="decimal" placeholder="6"
-                                oninput={(ev) => patchMv(e.id, mv, 'met',
+                              <input value={draft(mv, 'met')} inputmode="decimal" placeholder="6"
+                                oninput={(ev) => editMv(e.id, mv, 'met',
                                            (ev.currentTarget as HTMLInputElement).value)}
+                                onblur={() => blurMv(e.id, mv, 'met')}
                                 class="tnum w-14 rounded-md border border-line bg-ink px-2 py-1.5 text-sm" />
                             </label>
                           {:else}
                             <label class="flex items-center gap-1.5">
                               <span class="eyebrow text-[9px]">reps</span>
-                              <input value={mv.rep_low ?? ''} inputmode="numeric"
-                                oninput={(ev) => patchMv(e.id, mv, 'rep_low',
+                              <input value={draft(mv, 'rep_low')} inputmode="numeric"
+                                oninput={(ev) => editMv(e.id, mv, 'rep_low',
                                            (ev.currentTarget as HTMLInputElement).value)}
+                                onblur={() => blurMv(e.id, mv, 'rep_low')}
                                 class="tnum w-12 rounded-md border border-line bg-ink px-2 py-1.5 text-sm" />
                             </label>
                             <span class="text-muted">–</span>
-                            <input value={mv.rep_high ?? ''} inputmode="numeric"
-                              oninput={(ev) => patchMv(e.id, mv, 'rep_high',
+                            <input value={draft(mv, 'rep_high')} inputmode="numeric"
+                              oninput={(ev) => editMv(e.id, mv, 'rep_high',
                                          (ev.currentTarget as HTMLInputElement).value)}
+                              onblur={() => blurMv(e.id, mv, 'rep_high')}
                               class="tnum w-12 rounded-md border border-line bg-ink px-2 py-1.5 text-sm" />
                           {/if}
                           <span class="ml-auto flex gap-1">

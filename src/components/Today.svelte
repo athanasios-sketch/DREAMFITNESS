@@ -373,7 +373,15 @@
                         : fasting ? 'border-fast/40 text-fast' : 'border-fed/40 text-fed'}">
             {travel ? 'Travel' : fasting ? 'Fasting' : keto ? 'Keto' : 'Fed'}
           </span>
-          {#if keto && d.profile?.eat_window_start}
+          {#if keto && travel}
+            <!-- The window is adherence scaffolding, not the mechanism. A hotel
+                 buffet at 08:00 is worth more than a rule about clock time, and
+                 the deficit and the protein - which ARE the mechanism - both
+                 hold either way. -->
+            <span class="ml-2 font-data text-[11px] uppercase tracking-widest text-muted">
+              no window today
+            </span>
+          {:else if keto && d.profile?.eat_window_start}
             <span class="ml-2 font-data text-[11px] uppercase tracking-widest text-muted">
               {String(d.profile.eat_window_start).slice(0,5)}&ndash;{String(d.profile.eat_window_end).slice(0,5)}
             </span>
@@ -504,6 +512,15 @@
           fed one &mdash; chickpeas, edamame, lentils and oats carry it in with the protein, and there
           is no way to buy one without the other. If it sits badly, halve the chickpeas and the
           lentils for a fortnight and build back up.
+        </p>
+      {:else if keto && travel}
+        <p class="mt-4 border-t border-line pt-3 text-[11px] leading-relaxed text-muted">
+          Away, so the eating window is off and breakfast is back: three eggs, plain yogurt,
+          cheese and olives off the buffet, and nothing from the bread end of it. The three
+          things that still have to be true today are the
+          <span class="text-bone">protein</span>, the <span class="text-bone">net carbs</span>
+          and the <span class="text-bone">steps</span> &mdash; and with no session to pay for it,
+          this day is budgeted about 320 kcal lower than a training one.
         </p>
       {:else if keto && isRest}
         <p class="mt-4 border-t border-line pt-3 text-[11px] leading-relaxed text-muted">

@@ -408,3 +408,120 @@ export async function rescoreAll() {
   if (error) throw error;
   return data as number;
 }
+
+
+// ======================================================== the week ahead
+/** Monday of the ISO week `iso` falls in. The shopping week starts on the day
+ *  you shop for, and a week that starts on Monday is the one people mean. */
+export const weekStart = (iso: string): string =>
+  shiftDate(iso, -(isoWeekday(iso) - 1));
+
+/** Every day of a week with its menu, and every menu with its gram-level
+ *  ingredients - which is what turns a plan into a shopping list. One round
+ *  trip: the alternative is 7 days x 3 meals of separate reads. */
+export async function loadWeek(from: string, days = 7) {
+  const to = shiftDate(from, days - 1);
+  const [{ data: pd, error }, prof] = await Promise.all([
+    supabase.from('program_days')
+      .select(`day_no, day_date, day_type, kcal_target, menu_kcal, protein_target_g,
+               exercise:exercises(code, name, category, duration_min),
+               planned:program_day_meals(slot_index,
+                 meal:meals(id, code, name, slot, kcal, protein_g, carbs_g, fiber_g,
+                            items:meal_ingredients(name, amount, unit, role, is_veg)))`)
+      .gte('day_date', from).lte('day_date', to).order('day_date'),
+    profile(),
+  ]);
+  if (error) throw error;
+  const dayList = (pd ?? []).map((d: any) => ({
+    ...d,
+    planned: [...(d.planned ?? [])].sort((a: any, b: any) => a.slot_index - b.slot_index),
+  }));
+  return { from, to, days: dayList, profile: prof };
+}
+
+/** Travel arrives as a trip, not as a day. One call, one re-pricing pass. */
+export async function setTravelDays(dates: string[], travel: boolean) {
+  if (!dates.length) return 0;
+  const { data, error } = await supabase.rpc('set_travel_days',
+    { p_dates: dates, p_travel: travel });
+  if (error) throw error;
+  return data as number;
+}
+
+/** Which shelf a thing is on. Aisle beats alphabetical: a list you can walk in
+ *  one direction is a list you finish. Falls back to the ingredient's role, so
+ *  a food nobody has categorised still lands somewhere sensible. */
+const AISLE: Record<string, string> = {
+  'Χόρτα (wild greens), boiled': 'produce', 'Spinach, raw': 'produce',
+  'Mushrooms': 'produce', 'Rocket (ρόκα)': 'produce', 'Romaine lettuce': 'produce',
+  'Cucumber': 'produce', 'Tomato': 'produce', 'Green pepper': 'produce',
+  'Avocado': 'produce',
+  'Chicken breast, raw': 'butcher', 'Chicken thigh, skin-on, raw': 'butcher',
+  'Chicken thigh, boneless skinless, raw': 'butcher', 'Turkey breast, raw': 'butcher',
+  'Beef mince 15% fat, raw': 'butcher', 'Pork shoulder (χοιρινή μπριζόλα), raw': 'butcher',
+  'Rotisserie chicken, meat only': 'deli',
+  'Egg, whole': 'dairy', 'Feta': 'dairy', 'Graviera': 'dairy', 'Halloumi': 'dairy',
+  'Greek yogurt 10% (στραγγιστό)': 'dairy',
+  'Kalamata olives, drained': 'pantry', 'Olive oil': 'pantry',
+  'Walnuts': 'pantry', 'Chia seeds': 'pantry', 'Ground flaxseed': 'pantry',
+  'Psyllium husk': 'pantry', 'Whey isolate powder': 'pantry',
+};
+const ROLE_AISLE: Record<string, string> = {
+  veg: 'produce', produce: 'produce', protein: 'butcher', fat: 'pantry', extra: 'pantry',
+};
+export const AISLES: [string, string][] = [
+  ['produce', 'Fruit & veg'], ['butcher', 'Meat counter'], ['deli', 'Deli & ready-cooked'],
+  ['dairy', 'Fridge'], ['pantry', 'Cupboard'],
+];
+
+/** Things that keep for a month in a bag. On a week away these are the ones to
+ *  PACK - buying psyllium in a strange town is a treasure hunt, and buying it
+ *  five times is five tubs. Everything else is bought fresh, wherever you are. */
+const PACKABLE = new Set(['Olive oil', 'Walnuts', 'Chia seeds', 'Ground flaxseed',
+                          'Psyllium husk', 'Whey isolate powder']);
+
+/** Eggs are bought in eggs. Everything else is bought by weight, and a number
+ *  in grams is what a kitchen scale reads. */
+function practical(name: string, grams: number): string {
+  if (name === 'Egg, whole') {
+    const n = Math.round(grams / 58);
+    return `${n} egg${n === 1 ? '' : 's'}`;
+  }
+  if (name === 'Olive oil') return `${Math.round(grams)} g (${Math.round(grams / 9)} tbsp)`;
+  return grams >= 1000 ? `${(grams / 1000).toFixed(1)} kg` : `${Math.round(grams / 5) * 5} g`;
+}
+
+export type ShopLine = { name: string; grams: number; label: string; aisle: string;
+                         packable: boolean; meals: number };
+
+/** The week's meals, added up per ingredient and split by where you get it.
+ *  `home` is the weekly shop; `road` is what a travel day needs, which is a
+ *  different errand and mostly a different shop. */
+export function shoppingList(week: { days: any[] }) {
+  const bucket = (travel: boolean) => {
+    const map = new Map<string, ShopLine>();
+    for (const d of week.days) {
+      if ((d.day_type === 'travel') !== travel) continue;
+      for (const p of d.planned ?? []) {
+        for (const it of p.meal?.items ?? []) {
+          const key = it.name;
+          const line = map.get(key) ?? { name: key, grams: 0, label: '',
+            aisle: AISLE[key] ?? ROLE_AISLE[it.role] ?? 'pantry',
+            packable: PACKABLE.has(key), meals: 0 };
+          line.grams += +it.amount;
+          line.meals += 1;
+          map.set(key, line);
+        }
+      }
+    }
+    const lines = [...map.values()];
+    for (const l of lines) l.label = practical(l.name, l.grams);
+    return lines.sort((a, b) => b.grams - a.grams);
+  };
+  return { home: bucket(false), road: bucket(true) };
+}
+
+/** Aisle order, empty aisles dropped. */
+export const byAisle = (lines: ShopLine[]) =>
+  AISLES.map(([key, label]) => ({ key, label, items: lines.filter((l) => l.aisle === key) }))
+        .filter((g) => g.items.length);

@@ -6,11 +6,12 @@
   import Dashboard from './Dashboard.svelte';
   import Meals from './Meals.svelte';
   import Gym from './Gym.svelte';
+  import Week from './Week.svelte';
 
   let session = $state<any>(null);
   let ready   = $state(false);
   let online  = $state(true);
-  let tab     = $state<'dashboard' | 'today' | 'gym' | 'meals'>('dashboard');
+  let tab     = $state<'dashboard' | 'today' | 'week' | 'gym' | 'meals'>('dashboard');
 
   onMount(async () => {
     const { data } = await supabase.auth.getSession();
@@ -33,7 +34,8 @@
   const signOut = async () => { await supabase.auth.signOut(); session = null; };
 
   const TABS = [
-    ['dashboard', 'Overview'], ['today', 'Today'], ['gym', 'Gym'], ['meals', 'Meals'],
+    ['dashboard', 'Overview'], ['today', 'Today'], ['week', 'Week'],
+    ['gym', 'Gym'], ['meals', 'Meals'],
   ] as const;
 </script>
 
@@ -61,6 +63,8 @@
       <Dashboard {signOut} onOpenToday={() => (tab = 'today')} />
     {:else if tab === 'today'}
       <Today />
+    {:else if tab === 'week'}
+      <Week />
     {:else if tab === 'gym'}
       <Gym />
     {:else}
@@ -74,7 +78,7 @@
       {#each TABS as [key, label]}
         <button
           onclick={() => (tab = key as any)}
-          class="flex-1 py-4 text-sm font-medium transition-colors
+          class="flex-1 py-4 text-[13px] font-medium transition-colors
                  {tab === key ? 'text-bone' : 'text-muted'}">
           <span class="relative">
             {label}
