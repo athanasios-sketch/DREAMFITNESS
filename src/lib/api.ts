@@ -235,10 +235,28 @@ export async function reconcileTdee() {
   return data as number;
 }
 
+/** Numeric fields typed on a Greek keyboard arrive with a decimal COMMA, and
+ *  pasted values sometimes trail a unit ("101,3 kg"). Number() reads both as
+ *  NaN, so the old code sent a string Postgres could not cast, the update
+ *  silently matched zero rows, and the measurement was lost.
+ *
+ *  `notes` is the only non-numeric column that passes through here, so the
+ *  rule is: if the column is `notes`, keep the string; otherwise clean it
+ *  into a finite number or null. */
+const METRIC_TEXT_FIELDS = new Set(['notes']);
+
 export async function saveMetrics(date: string, fields: Record<string, any>) {
   const log = await ensureDayLog(date);
   const clean = Object.fromEntries(
-    Object.entries(fields).map(([k, v]) => [k, v === '' || v === undefined ? null : v]));
+    Object.entries(fields).map(([k, v]) => {
+      if (v === '' || v === undefined || v === null) return [k, null];
+      if (METRIC_TEXT_FIELDS.has(k)) return [k, v];
+      // comma → dot, strip any trailing unit text ("kg", "cm", …)
+      const s = String(v).trim().replace(',', '.').replace(/[^\d.\-]/g, '');
+      if (!/\d/.test(s)) return [k, null];
+      const n = Number(s);
+      return [k, Number.isFinite(n) ? n : null];
+    }));
   const { error } = await supabase.from('day_logs').update(clean).eq('id', log.id);
   if (error) throw error;
   // a new weight re-prices every remaining day of the plan
